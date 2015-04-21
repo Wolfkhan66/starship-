@@ -124,7 +124,7 @@ int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
-if(!(c.getY() > h)) {
+if(!(c.getY() < 60.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }}
@@ -134,7 +134,7 @@ int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
-if(!(c.getY() > h)) {
+if(!(c.getY() < 60.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }}

@@ -129,7 +129,9 @@ void SFApp::OnRender() {
   for(auto c: coins) {
    if (c->IsAlive()) {c->OnRender();}
 	else {
- auto pos = Point2 (rand() % (615-200+1)+ 45, rand() %(455-100+1 ));
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+	auto pos = Point2 (rand() % (20 + 500), rand() %(200 + 400));
 	c->SetPosition(pos);
 	c->SetAlive();
 }
