@@ -129,7 +129,7 @@ void SFApp::OnRender() {
   for(auto c: coins) {
    if (c->IsAlive()) {c->OnRender();}
 	else {
- auto pos = Point2 (rand() % (615-200+1)+ 45, rand() %(455-100+1 ));
+ auto pos = Point2 (rand() % (615-200+1)+ 45, rand() %(455-455+1 ));
 	c->SetPosition(pos);
 	c->SetAlive();
 }
