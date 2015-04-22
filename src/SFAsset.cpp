@@ -18,6 +18,15 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_COIN:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
     break;
+  case SFASSET_DEBRIS:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/debris.png");
+    break;
+  case SFASSET_ALIENFIRE:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/alienfire.png");
+    break;
+  case SFASSET_WALL:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/wall.png");
+    break;
   }
 
   if(!sprite) {
@@ -160,7 +169,7 @@ bool SFAsset::IsAlive() {
 }
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_ALIENFIRE == type || SFASSET_WALL == type ) {
     SetNotAlive();
   }
 }
