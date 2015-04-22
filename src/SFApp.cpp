@@ -13,7 +13,7 @@ SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_w
   for(int i=0; i<number_of_aliens; i++) {
     // place an alien at width/number_of_aliens * i
     auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-    auto pos   = Point2((canvas_w/number_of_aliens) * i, 200.0f);
+	auto pos = Point2 (rand() % (canvas_w-50), rand() %(canvas_h + 200));
     alien->SetPosition(pos);
     aliens.push_back(alien);
   }
@@ -144,7 +144,7 @@ void SFApp::OnRender() {
   }
 
 	for(auto d: debrise) {
-		if(d->IsAlive()) [m->OnRender();}
+		if(d->IsAlive()) {d->OnRender();}
 }
 
   for(auto c: coins) {
