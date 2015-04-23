@@ -74,6 +74,9 @@ Vector2 GameSpaceToScreenSpace(SDL_Renderer* renderer, Vector2 &r) {
                   );
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::SetPosition(Point2 & point) {
   Vector2 v(point.getX(), point.getY());
   bbox->SetCentre(v);
@@ -86,6 +89,10 @@ Point2 SFAsset::GetPosition() {
 SFAssetId SFAsset::GetId() {
   return id;
 }
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::OnRender() {
   // 1. Get the SDL_Rect from SFBoundingBox
@@ -102,6 +109,9 @@ void SFAsset::OnRender() {
   SDL_RenderCopy(sf_window->getRenderer(), sprite, NULL, &rect);
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::GoWest() {
   Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
   if(!(c.getX() < 20)) {
@@ -109,6 +119,9 @@ void SFAsset::GoWest() {
     bbox->centre = make_shared<Vector2>(c);
   }
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::GoEast() {
   int w, h;
@@ -121,12 +134,18 @@ void SFAsset::GoEast() {
   }
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::GoNorth() {
   Vector2 c = *(bbox->centre) + Vector2(0.0f, 5.0f);
 if(!(c.getY() < 0)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::GoSouth() {
 int w, h;
@@ -138,6 +157,9 @@ if(!(c.getY() < 60.0f)) {
   bbox->centre = make_shared<Vector2>(c);
 }}
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::CoinM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
@@ -147,6 +169,9 @@ if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::DebrisM() {
 int w, h;
@@ -158,6 +183,9 @@ if(!(c.getY() < -50.0f)) {
   bbox->centre = make_shared<Vector2>(c);
 }}
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::AlienM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
@@ -168,6 +196,8 @@ if(!(c.getY() < -50.0f)) {
   bbox->centre = make_shared<Vector2>(c);
 }}
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 bool SFAsset::CollidesWith(shared_ptr<SFAsset> other) {
   return bbox->CollidesWith(other->bbox);
@@ -177,40 +207,64 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
   return bbox;
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::PlayerHit() {
-PlayerHealth = PlayerHealth - 10;
-cout <<"player lost 10 health";
-if (PlayerHealth == 0){
-	GameOver();
+	if (PlayerHealth == 0){
+		GameOver();
+	}
+	else {
+		PlayerHealth = PlayerHealth - 10;
+		cout <<"player lost 10 health";
 	}
 }
 
-void SFAsset::GameOver(){
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
+void SFAsset::GameOver(){
 	cout <<"It seems you have died";
-	std::exit;
+		std::exit;
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::SetNotAlive() {
   type = SFASSET_DEAD;
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::SetCoinAlive() {
   type = SFASSET_COIN;
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::SetDebrisAlive() {
   type = SFASSET_DEBRIS;
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::SetAlienAlive() {
   type = SFASSET_ALIEN;
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 bool SFAsset::IsAlive() {
   return (SFASSET_DEAD != type);
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
   if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_ALIENFIRE == type || SFASSET_WALL == type ) {

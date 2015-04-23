@@ -179,11 +179,14 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
 
 
 void SFAsset::PlayerHit() {
-PlayerHealth = PlayerHealth - 10;
-cout <<"player lost 10 health";
-if (PlayerHealth == 0){
+
+	if (PlayerHealth == 0){
 	GameOver();
 	}
+	else {
+	PlayerHealth = PlayerHealth - 10;
+	cout <<"player lost 10 health";
+}
 }
 
 void SFAsset::GameOver(){

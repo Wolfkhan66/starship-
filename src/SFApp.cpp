@@ -1,13 +1,13 @@
 #include "SFApp.h"
 
 	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), 	is_running(true), sf_window(window) {
-  int canvas_w, canvas_h;
-  SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
+  	int canvas_w, canvas_h;
+  		SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
 
   app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), 	canvas_w, canvas_h);
-  player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
-  auto player_pos = Point2(canvas_w/2, 88.0f);
-  player->SetPosition(player_pos);
+  	player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
+  		auto player_pos = Point2(canvas_w/2, 88.0f);
+  			player->SetPosition(player_pos);
 
 		// spawn aliens
 	const int number_of_aliens = 5;
@@ -34,10 +34,12 @@
 			auto pos  = Point2 (rand() % (40 + 640), rand() %(600 + 3000));
 					coin->SetPosition(pos);
 					coins.push_back(coin);
-	}
+		}
 	}
 
 
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 
 SFApp::~SFApp() {
 }
@@ -86,7 +88,13 @@ int SFApp::OnExecute() {
   }
 }
 
+
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+
 void SFApp::OnUpdateWorld() {
+
   // Update projectile positions
   for(auto p: projectiles) {
     p->GoNorth();
@@ -95,143 +103,123 @@ void SFApp::OnUpdateWorld() {
  // coin movement and collision
   for(auto c: coins) {
     c->CoinM();
-	if(player->CollidesWith(c)) {
-	c->HandleCollision();
-}
+			if(player->CollidesWith(c)) {
+				c->HandleCollision();
+			}
   }
 
 
-	//Debris movement and collision
+	//Debris movement
 	for(auto d: debrise){
-	d->DebrisM();
-	
+		d->DebrisM();
 	}
 
   // Update enemy positions
   for(auto a : aliens) {
-	a->AlienM();
+		a->AlienM();
   }
-
-
-
-
-	/*for(auto a : aliens){
-		for(auto c : coins){
-			for(auto d : debrise){
-  			for(auto p : projectiles) {
-					if(p->CollidesWith(a)) {
-       			 p->HandleCollision();
-        		 a->HandleCollision();
-				else if(p->CollidesWith(d)){
-					p->HandleCollision();
-					d->HandleCollision();
-				else if((a->CollidesWith(a))
-					a->HandleCollision();
-				else if (a->CollidesWith(d))
-					a->HandleCollision();
-					d->HandleCollision();
-				else if a->CollidesWith(c))
-					a->HandleCollision();
-					c->HandleCollision();
-				else if d->CollidesWith(c))
-					c->HandleCollision();
-					d->HandleCollision();}
-						}
-			}
-*/
-	
 		
 
   // Detect collisions 
   for(auto p : projectiles) {
     for(auto a : aliens) {
 			for(auto d : debrise){
-      if(p->CollidesWith(a)) {
-        p->HandleCollision();
-        a->HandleCollision();
-      }
-			if(p->CollidesWith(d)){
-				p->HandleCollision();
-				d->HandleCollision();
+      	if(p->CollidesWith(a)) {
+       	  p->HandleCollision();
+       	  a->HandleCollision();
+      	}
+				if(p->CollidesWith(d)){
+					p->HandleCollision();
+					d->HandleCollision();
+				}
+				if(a->CollidesWith(player)){
+					a->HandleCollision();
+					player->PlayerHit();
+   	 		}
+				if(d->CollidesWith(player)){
+					d->HandleCollision();
+					player->PlayerHit();
+				}
 			}
-			if(a->CollidesWith(player)){
-				a->HandleCollision();
-				player->PlayerHit();
-   	 }
-			if(d->CollidesWith(player)){
-				d->HandleCollision();
-				player->PlayerHit();
+		}
 	}
 }
-}
-}
-}
+
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
 
   void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
 
   // draw the player
-  player->OnRender();
+  	player->OnRender();
 
 
-		//projectile collision management
-	  	list<shared_ptr<SFAsset>> tmp;
-  		for(auto p : projectiles) {
-     if(p->IsAlive()) {
-			p->OnRender();
-      tmp.push_back(p);
-    		}
-			}
+	//projectile collision management
+	  list<shared_ptr<SFAsset>> tmp;
+  	for(auto p : projectiles) {
+    	if(p->IsAlive()) {
+				p->OnRender();
+      	tmp.push_back(p);
+    	}
+		}
 		projectiles.clear();
 		projectiles = list<shared_ptr<SFAsset>>(tmp);
 
 
 
 	//alien generation
-  for(auto a: aliens) {
-	auto aPos = a->GetPosition();
-		if(a->IsAlive() && !(aPos.getY() < -30.0f)) {
-			a->OnRender();	}
-	else {
-	int w, h;
-	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-	auto pos = Point2 (rand() % (20 + 500), 550);
-	a->SetPosition(pos);
-	a->SetAlienAlive();
-  }}
+  	for(auto a: aliens) {
+			auto aPos = a->GetPosition();
+				if(a->IsAlive() && !(aPos.getY() < -30.0f)) {
+					a->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto pos = Point2 (rand() % (20 + 500), 550);
+						a->SetPosition(pos);
+						a->SetAlienAlive();
+  			}
+		}
 
 	//debris generation
-	for(auto d: debrise) {
-	auto dPos = d->GetPosition();
-		if(d->IsAlive() && !(dPos.getY() < -30.0f)) {
-			d->OnRender();	}
-	else {
-	int w, h;
-	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-	auto pos = Point2 (rand() % (500), 550);
-	d->SetPosition(pos);
-	d->SetDebrisAlive();
-}
-}
+		for(auto d: debrise) {
+			auto dPos = d->GetPosition();
+				if(d->IsAlive() && !(dPos.getY() < -30.0f)) {
+					d->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto pos = Point2 (rand() % (500), 550);
+						d->SetPosition(pos);
+						d->SetDebrisAlive();
+				}
+		}
 
 
 	//coin generation
   	for(auto c: coins) {
-	auto cPos = c->GetPosition();
-		if(c->IsAlive() && !(cPos.getY() < -30.0f)) {
-			c->OnRender();	}
-	else {
-	int w, h;
-	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-	auto pos = Point2 (rand() % (20 + 500), 550);
-	c->SetPosition(pos);
-	c->SetCoinAlive();
-}
-  }
+			auto cPos = c->GetPosition();
+				if(c->IsAlive() && !(cPos.getY() < -30.0f)) {
+					c->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto pos = Point2 (rand() % (20 + 500), 550);
+						c->SetPosition(pos);
+						c->SetCoinAlive();
+				}
+  	}
 
   // Switch the off-screen buffer to be on-screen
   SDL_RenderPresent(sf_window->getRenderer());
-}
+
+	}
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 
 void SFApp::FireProjectile() {
   auto pb = make_shared<SFAsset>(SFASSET_PROJECTILE, sf_window);
