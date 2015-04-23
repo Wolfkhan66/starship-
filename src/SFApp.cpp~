@@ -51,29 +51,15 @@ SFApp::~SFApp() {
 void SFApp::OnEvent(SFEvent& event) {
   SFEVENT the_event = event.GetCode();
   switch (the_event) {
-  case SFEVENT_QUIT:
-    is_running = false;
+  	case SFEVENT_QUIT:
+   		 is_running = false;
     break;
-  case SFEVENT_UPDATE:
-    OnUpdateWorld();
-    OnRender();
+  	case SFEVENT_UPDATE:
+    		OnUpdateWorld();
+    		OnRender();
     break;
-  case SFEVENT_PLAYER_LEFT:
-    player->GoWest();
-    break;
-  case SFEVENT_PLAYER_RIGHT:
-    player->GoEast();
-    break;
-	case SFEVENT_PLAYER_UP:
-    player->GoNorth();
-    break;
-	case SFEVENT_PLAYER_DOWN:
-    player->GoSouth();
-    break;
-  case SFEVENT_FIRE:
-    fire ++;
-    FireProjectile();
-    break;
+		default:
+		break;
   }
 }
 
@@ -94,6 +80,29 @@ int SFApp::OnExecute() {
 
 
 void SFApp::OnUpdateWorld() {
+
+
+
+ const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+ 	if(keyboardState[SDL_SCANCODE_DOWN]) {
+ 		player->GoSouth();
+ }
+ 	if(keyboardState[SDL_SCANCODE_UP]) {
+ 		player->GoNorth();
+ }
+ 	if(keyboardState[SDL_SCANCODE_LEFT]) {
+ 		player->GoWest();
+ }
+ 	if(keyboardState[SDL_SCANCODE_RIGHT]) {
+ 		player->GoEast();
+ }
+	if(keyboardState[SDL_SCANCODE_SPACE]) {
+ 		fire ++;
+ 	if(fire < maxProjectiles)
+ 		FireProjectile();
+ }
+
+
 
   // Update projectile positions
   for(auto p: projectiles) {
@@ -160,15 +169,15 @@ void SFApp::OnUpdateWorld() {
 	//projectile collision management
 	  list<shared_ptr<SFAsset>> tmp;
   	for(auto p : projectiles) {
-    	if(p->IsAlive()) {
+			auto pPos = p->GetPosition();
+    	if(p->IsAlive() && !(pPos.getY() > 500.0f)) {
 				p->OnRender();
       	tmp.push_back(p);
     	}
 		}
 		projectiles.clear();
 		projectiles = list<shared_ptr<SFAsset>>(tmp);
-
-
+		
 
 	//alien generation
   	for(auto a: aliens) {

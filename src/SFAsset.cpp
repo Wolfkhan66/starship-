@@ -113,49 +113,66 @@ void SFAsset::OnRender() {
 //////////////////////////////////////////////
 
 void SFAsset::GoWest() {
-  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
-  if(!(c.getX() < 20)) {
-    bbox->centre.reset();
-    bbox->centre = make_shared<Vector2>(c);
-  }
+  if(SFASSET_PLAYER == type) {
+ Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
+ if(!(c.getX()-32.0f < 0)) {
+ bbox->centre.reset();
+ bbox->centre = make_shared<Vector2>(c);
+ }
+ }
 }
-
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFAsset::GoEast() {
-  int w, h;
-  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+  if(SFASSET_PLAYER == type) {
+ int w, h;
+ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
-  Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
-  if(!(c.getX() > 620)) {
-    bbox->centre.reset();
-    bbox->centre = make_shared<Vector2>(c);
-  }
+ Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
+ if(!(c.getX()+32.0f > w)) {
+ bbox->centre.reset();
+ bbox->centre = make_shared<Vector2>(c);
+ }
+ }
 }
-
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFAsset::GoNorth() {
-  Vector2 c = *(bbox->centre) + Vector2(0.0f, 5.0f);
-if(!(c.getY() < 0)) {
-  bbox->centre.reset();
-  bbox->centre = make_shared<Vector2>(c);
-}}
+   if(SFASSET_PLAYER == type) {
+ int w, h;
+ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+	Vector2 c = *(bbox->centre) + Vector2(0.0f, 4.0f);
+
+ if(!(c.getY()-18.0f > h)) {
+ bbox->centre.reset();
+ bbox->centre = make_shared<Vector2>(c);
+ }
+ }
+ if(SFASSET_PROJECTILE == type){
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, 10.0f);
+bbox->centre.reset();
+bbox->centre = make_shared<Vector2>(c);
+	}
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFAsset::GoSouth() {
-int w, h;
-SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
-if(!(c.getY() < 60.0f)) {
-  bbox->centre.reset();
-  bbox->centre = make_shared<Vector2>(c);
-}}
+if(SFASSET_PLAYER == type) {
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
+
+ if(!(c.getY() < 64.0f)) {
+ bbox->centre.reset();
+ bbox->centre = make_shared<Vector2>(c);
+ }
+}
+}
+ 
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -168,7 +185,8 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-}}
+}
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
