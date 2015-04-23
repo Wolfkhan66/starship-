@@ -142,7 +142,7 @@ void SFAsset::CoinM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
 if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
@@ -152,7 +152,7 @@ void SFAsset::DebrisM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -2.0f);
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -7.0f);
 if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
@@ -162,7 +162,7 @@ void SFAsset::AlienM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -2.0f);
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
 if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
