@@ -13,18 +13,19 @@ SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_w
   for(int i=0; i<number_of_aliens; i++) {
     // place an alien at width/number_of_aliens * i
     auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-	auto pos = Point2 (rand() % (canvas_w-50), rand() %(canvas_h + 200));
+    //auto pos = Point2 (rand() % (20 + 500), 200+(rand() % (int)(480-200+1)));
+	auto pos = Point2 (rand() % (20 + 500), 550);
     alien->SetPosition(pos);
     aliens.push_back(alien);
   }
   
 	auto debris = make_shared<SFAsset>(SFASSET_DEBRIS, sf_window);
-	auto debris_pos = Point2(canvas_w - 100, 300.0f);
+	auto debris_pos = Point2 (rand() % (20 + 500), 550);
 	debris->SetPosition(debris_pos);
 	debrise.push_back(debris);
 
   auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
-  auto pos  = Point2(320.0f, 480.0f);
+  auto pos  = Point2(320.0f, 550.0f);
   coin->SetPosition(pos);
   coins.push_back(coin);
 }
@@ -93,12 +94,12 @@ void SFApp::OnUpdateWorld() {
 
 	//Debris  
 	for(auto d: debrise){
-	d->GoSouth();
+	d->DebrisM();
 	}
 
   // Update enemy positions
   for(auto a : aliens) {
-    // do something here
+	a->AlienM();
   }
 
   // Detect collisions
@@ -145,14 +146,20 @@ void SFApp::OnRender() {
 
 	for(auto d: debrise) {
 		if(d->IsAlive()) {d->OnRender();}
+	else {
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+	auto pos = Point2 (rand() % (500), 550);
+	d->SetPosition(pos);
+	d->SetAlive();
 }
-
+}
   for(auto c: coins) {
    if (c->IsAlive()) {c->OnRender();}
 	else {
 	int w, h;
 	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-	auto pos = Point2 (rand() % (20 + 500), rand() %(200 + 400));
+	auto pos = Point2 (rand() % (20 + 500), 550);
 	c->SetPosition(pos);
 	c->SetAlive();
 }

@@ -138,6 +138,26 @@ if(!(c.getY() < 60.0f)) {
   bbox->centre = make_shared<Vector2>(c);
 }}
 
+void SFAsset::DebrisM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -2.0f);
+if(!(c.getY() < 60.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}}
+
+void SFAsset::AlienM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -2.0f);
+if(!(c.getY() < 60.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}}
+
 void SFAsset::GoSouth() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
@@ -162,6 +182,10 @@ void SFAsset::SetNotAlive() {
 
 void SFAsset::SetAlive() {
   type = SFASSET_COIN;
+}
+
+void SFAsset::SetDAlive() {
+  type = SFASSET_DEBRIS;
 }
 
 bool SFAsset::IsAlive() {
