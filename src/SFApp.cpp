@@ -1,20 +1,19 @@
 #include "SFApp.h"
 
-SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_window(window) {
+	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), 	is_running(true), sf_window(window) {
   int canvas_w, canvas_h;
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
 
-  app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), canvas_w, canvas_h);
+  app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), 	canvas_w, canvas_h);
   player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
-  auto player_pos = Point2(canvas_w, 88.0f);
+  auto player_pos = Point2(canvas_w/2, 88.0f);
   player->SetPosition(player_pos);
 
   const int number_of_aliens = 10;
-  for(int i=0; i<number_of_aliens; i++) {
+  	for(int i=0; i<number_of_aliens; i++) {
     // place an alien at width/number_of_aliens * i
     auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-    //auto pos = Point2 (rand() % (20 + 500), 200+(rand() % (int)(480-200+1)));
-	auto pos = Point2 (rand() % (20 + 500), 550);
+		auto pos = Point2 (rand() % (20 + 500), 550);
     alien->SetPosition(pos);
     aliens.push_back(alien);
   }
@@ -30,7 +29,7 @@ SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_w
   coins.push_back(coin);
 }
 
-SFApp::~SFApp() {
+	SFApp::~SFApp() {
 }
 
 /**
@@ -53,10 +52,10 @@ void SFApp::OnEvent(SFEvent& event) {
   case SFEVENT_PLAYER_RIGHT:
     player->GoEast();
     break;
-case SFEVENT_PLAYER_UP:
+	case SFEVENT_PLAYER_UP:
     player->GoNorth();
     break;
-case SFEVENT_PLAYER_DOWN:
+	case SFEVENT_PLAYER_DOWN:
     player->GoSouth();
     break;
   case SFEVENT_FIRE:
@@ -83,7 +82,7 @@ void SFApp::OnUpdateWorld() {
     p->GoNorth();
   }
 
- // generate and collect coins
+ // coin movement and collision
   for(auto c: coins) {
     c->CoinM();
 	if(player->CollidesWith(c)) {
@@ -92,9 +91,10 @@ void SFApp::OnUpdateWorld() {
   }
 
 
-	//Debris  
+	//Debris movement and collision
 	for(auto d: debrise){
 	d->DebrisM();
+	
 	}
 
   // Update enemy positions
@@ -102,7 +102,7 @@ void SFApp::OnUpdateWorld() {
 	a->AlienM();
   }
 
-  // Detect collisions
+  // Detect projectile collisions with aliens
   for(auto p : projectiles) {
     for(auto a : aliens) {
       if(p->CollidesWith(a)) {
@@ -110,6 +110,7 @@ void SFApp::OnUpdateWorld() {
         a->HandleCollision();
       }
     }
+  // Detect projectile collisions with debris
 	for(auto d : debrise){
 	if(p->CollidesWith(d)){
 		p->HandleCollision();
@@ -144,6 +145,7 @@ void SFApp::OnRender() {
     if(a->IsAlive()) {a->OnRender();}
   }
 
+	//debris generation
 	for(auto d: debrise) {
 		if(d->IsAlive()) {d->OnRender();}
 	else {
@@ -154,6 +156,9 @@ void SFApp::OnRender() {
 	d->SetAlive();
 }
 }
+
+
+	//coin generation
   for(auto c: coins) {
    if (c->IsAlive()) {c->OnRender();}
 	else {
