@@ -177,6 +177,21 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
   return bbox;
 }
 
+
+void SFAsset::PlayerHit() {
+PlayerHealth = PlayerHealth - 10;
+cout <<"player lost 10 health";
+if (PlayerHealth == 0){
+	GameOver();
+	}
+}
+
+void SFAsset::GameOver(){
+
+	cout <<"It seems you have died";
+	std::exit;
+}
+
 void SFAsset::SetNotAlive() {
   type = SFASSET_DEAD;
 }

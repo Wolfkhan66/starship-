@@ -42,13 +42,17 @@ public:
   virtual void 	    AlienM();
   virtual void	    SetCoinAlive();
   virtual void	    SetAlienAlive();
-	virtual void	    SetDebrisAlive();
+  virtual void	    SetDebrisAlive();
   virtual void      SetNotAlive();
+  virtual void      PlayerHit();
+  virtual void      GameOver();
   virtual bool      IsAlive();
   virtual void      HandleCollision();
 
   virtual bool                      CollidesWith(shared_ptr<SFAsset>);
   virtual shared_ptr<SFBoundingBox> GetBoundingBox();
+
+  int 	PlayerHealth = 100;
 private:
   // it would be nice if we could make this into a smart pointer,
   // but, because we need to call SDL_FreeSurface on it, we can't.

@@ -18,6 +18,7 @@ using namespace std;
  * * Processing game events
  */
 class SFApp {
+
 public:
   SFApp(std::shared_ptr<SFWindow>);
   virtual ~SFApp();
@@ -25,8 +26,8 @@ public:
   int     OnExecute();
   void    OnUpdateWorld();
   void    OnRender();
-
   void    FireProjectile();
+
 private:
   SDL_Surface           * surface;
   bool                    is_running;
@@ -46,4 +47,5 @@ private:
 
   SFError OnInit();
 };
+
 #endif
