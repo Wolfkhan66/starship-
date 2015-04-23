@@ -121,17 +121,17 @@ void SFApp::OnUpdateWorld() {
 
 
   // remove dead aliens (the long way)
-  list<shared_ptr<SFAsset>> tmp;
-  for(auto a : aliens) {
-    if(a->IsAlive()) {
-      tmp.push_back(a);
-    }
-  }
-  aliens.clear();
-  aliens = list<shared_ptr<SFAsset>>(tmp);
-}
+ // list<shared_ptr<SFAsset>> tmp;
+ // for(auto a : aliens) {
+  //  if(a->IsAlive()) {
+  //    tmp.push_back(a);
+   // }
+  //}
+ // aliens.clear();
+ // aliens = list<shared_ptr<SFAsset>>(tmp);
+} 
 
-void SFApp::OnRender() {
+  void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
 
   // draw the player
@@ -141,32 +141,45 @@ void SFApp::OnRender() {
     if(p->IsAlive()) {p->OnRender();}
   }
 
+	//alien generation
   for(auto a: aliens) {
-    if(a->IsAlive()) {a->OnRender();}
-  }
+	auto aPos = a->GetPosition();
+		if(a->IsAlive() && !(aPos.getY() < -30.0f)) {
+			a->OnRender();	}
+	else {
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+	auto pos = Point2 (rand() % (20 + 500), 550);
+	a->SetPosition(pos);
+	a->SetAlienAlive();
+  }}
 
 	//debris generation
 	for(auto d: debrise) {
-		if(d->IsAlive()) {d->OnRender();}
+	auto dPos = d->GetPosition();
+		if(d->IsAlive() && !(dPos.getY() < -30.0f)) {
+			d->OnRender();	}
 	else {
 	int w, h;
 	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
 	auto pos = Point2 (rand() % (500), 550);
 	d->SetPosition(pos);
-	d->SetAlive();
+	d->SetDebrisAlive();
 }
 }
 
 
 	//coin generation
-  for(auto c: coins) {
-   if (c->IsAlive()) {c->OnRender();}
+  	for(auto c: coins) {
+	auto cPos = c->GetPosition();
+		if(c->IsAlive() && !(cPos.getY() < -30.0f)) {
+			c->OnRender();	}
 	else {
 	int w, h;
 	SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
 	auto pos = Point2 (rand() % (20 + 500), 550);
 	c->SetPosition(pos);
-	c->SetAlive();
+	c->SetCoinAlive();
 }
   }
 

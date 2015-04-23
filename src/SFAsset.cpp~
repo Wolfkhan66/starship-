@@ -115,7 +115,7 @@ void SFAsset::GoEast() {
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
   Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
-  if(!(c.getX() > 670)) {
+  if(!(c.getX() > 620)) {
     bbox->centre.reset();
     bbox->centre = make_shared<Vector2>(c);
   }
@@ -181,12 +181,16 @@ void SFAsset::SetNotAlive() {
   type = SFASSET_DEAD;
 }
 
-void SFAsset::SetAlive() {
+void SFAsset::SetCAlive() {
   type = SFASSET_COIN;
 }
 
 void SFAsset::SetDAlive() {
   type = SFASSET_DEBRIS;
+}
+
+void SFAsset::SetALAlive() {
+  type = SFASSET_ALIEN;
 }
 
 bool SFAsset::IsAlive() {

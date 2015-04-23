@@ -181,12 +181,16 @@ void SFAsset::SetNotAlive() {
   type = SFASSET_DEAD;
 }
 
-void SFAsset::SetAlive() {
+void SFAsset::SetCoinAlive() {
   type = SFASSET_COIN;
 }
 
-void SFAsset::SetDAlive() {
+void SFAsset::SetDebrisAlive() {
   type = SFASSET_DEBRIS;
+}
+
+void SFAsset::SetAlienAlive() {
+  type = SFASSET_ALIEN;
 }
 
 bool SFAsset::IsAlive() {

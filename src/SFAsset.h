@@ -40,8 +40,9 @@ public:
   virtual void 	    CoinM();
   virtual void 	    DebrisM();
   virtual void 	    AlienM();
-  virtual void	    SetAlive();
-	virtual void	    SetDAlive();
+  virtual void	    SetCoinAlive();
+  virtual void	    SetAlienAlive();
+	virtual void	    SetDebrisAlive();
   virtual void      SetNotAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();
