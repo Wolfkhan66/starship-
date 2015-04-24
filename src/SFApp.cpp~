@@ -17,6 +17,12 @@
 					alien->SetPosition(pos);
 					aliens.push_back(alien);
 	}
+
+		// spawn background1
+			auto background1 = make_shared<SFAsset>(SFASSET_BACKGROUND1, sf_window);
+			auto pos = Point2 (680,460);
+					background1->SetPosition(pos);
+					background1s.push_back(background1);
 		
 		//spawn debris
   const int number_of_debris = 8;
@@ -98,60 +104,117 @@ void SFApp::OnUpdateWorld() {
  }
 	if(keyboardState[SDL_SCANCODE_SPACE]) {
  		fire ++;
- 	if(fire < maxProjectiles)
  		FireProjectile();
  }
 
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
-
-  // Update projectile positions
-  for(auto p: projectiles) {
-    p->GoNorth();
-  }
-
- // coin movement and collision
-  for(auto c: coins) {
-    c->CoinM();
-			if(player->CollidesWith(c)) {
-				c->HandleCollision();
-			}
-  }
-
-
-	//Debris movement
-	for(auto d: debrise){
-		d->DebrisM();
+// Update projectile positions
+	for(auto p: projectiles) {
+		p->GoNorth();
+// Remove projectile when it hits the top of the screen
+		auto p_pos = p->GetPosition();
+		if(p_pos.getY() > h) {
+			p->HandleCollision();
+		}
 	}
 
-  // Update enemy positions
-  for(auto a : aliens) {
-		a->AlienM();
-  }
-		
 
-  // Detect collisions 
-  for(auto p : projectiles) {
-    for(auto a : aliens) {
-			for(auto d : debrise){
-      	if(p->CollidesWith(a)) {
-       	  p->HandleCollision();
-       	  a->HandleCollision();
-      	}
-				if(p->CollidesWith(d)){
-					p->HandleCollision();
-					d->HandleCollision();
-				}
-				if(a->CollidesWith(player)){
-					a->HandleCollision();
-					player->PlayerHit();
-   	 		}
-				if(d->CollidesWith(player)){
-					d->HandleCollision();
-					player->PlayerHit();
-				}
+	for(auto c : coins) {
+		c->CoinM();
+// Check player collision with coin
+		if(player->CollidesWith(c)) {
+			cout << "Collected coin!" << endl;
+			Points = Points + 100;
+			c->HandleCollision();
+		}
+	}
+
+// Update alien positions
+	for(auto a : aliens) {
+		a->AlienM();
+// Check player collision with alien
+		if(player->CollidesWith(a)) {
+			cout << "Hit by alien!" << endl;
+			cout << "HP"<< PlayerHP << endl;
+			PlayerHP = PlayerHP - 15;
+			a->HandleCollision();
+		}
+	}
+
+// Update enemy positions
+	for(auto d : debrise) {
+		d->DebrisM();
+// Check player collision with alien
+		if(player->CollidesWith(d)) {
+			cout << "Hit by debris!" << endl;
+			cout << "HP"<< PlayerHP << endl;
+			PlayerHP = PlayerHP - 5;
+			d->HandleCollision();
+		}
+	}
+
+// Detect projectile collision with alien
+	for(auto p : projectiles) {
+		for(auto a : aliens) {
+			if(p->CollidesWith(a)) {
+				cout << "Killed an enemy!" << endl;
+				cout << "Score:" << Points << endl;
+				Points = Points + 5;
+				p->HandleCollision();
+				a->HandleCollision();
 			}
 		}
 	}
+
+// Detect projectile collision with debris
+	for(auto p : projectiles) {
+		for(auto d : debrise) {
+			if(p->CollidesWith(d)) {
+				cout << "destroyed debris!" << endl;
+				Points = Points + 1;
+				p->HandleCollision();
+				d->HandleCollision();
+			}
+		}
+	}
+
+/*// Remove dead aliens (the long way)
+	list<shared_ptr<SFAsset>> alienTemp;
+		for(auto a : aliens) {
+			if(a->IsAlive()) {
+				alienTemp.push_back(a);
+			}
+		}
+			aliens.clear();
+			aliens = list<shared_ptr<SFAsset>>(alienTemp);
+
+
+// Remove dead debris 
+	list<shared_ptr<SFAsset>> debrisTemp;
+		for(auto d : debrise) {
+			if(d->IsAlive()) {
+				debrisTemp.push_back(d);
+			}
+		}
+			debrise.clear();
+			debrise = list<shared_ptr<SFAsset>>(debrisTemp);
+*/
+
+// Remove all dead projectiles
+	list<shared_ptr<SFAsset>> projTemp;
+		for(auto p : projectiles) {
+			if(p->IsAlive()) {
+				projTemp.push_back(p);
+			}
+			else{
+				fire--;
+			}
+		}
+			projectiles.clear();
+			projectiles = list<shared_ptr<SFAsset>>(projTemp);
+
 }
 
 
@@ -162,22 +225,20 @@ void SFApp::OnUpdateWorld() {
   void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
 
+	//render background 1
+for (auto b1:background1s){
+	b1->OnRender();
+	}
+
   // draw the player
   	player->OnRender();
-
-
-	//projectile collision management
-	  list<shared_ptr<SFAsset>> tmp;
-  	for(auto p : projectiles) {
-			auto pPos = p->GetPosition();
-    	if(p->IsAlive() && !(pPos.getY() > 500.0f)) {
-				p->OnRender();
-      	tmp.push_back(p);
-    	}
+	
+	// draw projectiles
+	 for(auto p: projectiles) {
+		if(p->IsAlive()) {
+			p->OnRender();
 		}
-		projectiles.clear();
-		projectiles = list<shared_ptr<SFAsset>>(tmp);
-		
+	}
 
 	//alien generation
   	for(auto a: aliens) {

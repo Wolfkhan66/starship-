@@ -27,6 +27,12 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_WALL:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/wall.png");
     break;
+  case SFASSET_BACKGROUND1:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/background1.png");
+    break;
+  case SFASSET_BACKGROUND2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/background2.png");
+    break;
   }
 
   if(!sprite) {
@@ -228,19 +234,6 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::PlayerHit() {
-	if (PlayerHealth == 0){
-		GameOver();
-	}
-	else {
-		PlayerHealth = PlayerHealth - 10;
-		cout <<"player lost 10 health";
-	}
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
 void SFAsset::GameOver(){
 	cout <<"It seems you have died";
 		std::exit;
@@ -285,7 +278,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_ALIENFIRE == type || SFASSET_WALL == type ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_ALIENFIRE == type || SFASSET_WALL == type || SFASSET_BACKGROUND1 == type || SFASSET_BACKGROUND2 == type) {
     SetNotAlive();
   }
 }
