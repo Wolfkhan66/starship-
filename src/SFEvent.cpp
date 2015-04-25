@@ -7,11 +7,11 @@ SFEvent::SFEvent(const SDL_Event & event) {
   switch (event.type) {
   case SDL_QUIT:
  code = SFEVENT_QUIT;
-break;
-
+ break;
  case SDL_USEREVENT:
  code = SFEVENT_UPDATE;
 break;
+
 
  case SDL_KEYDOWN:
  switch (event.key.keysym.sym) {
@@ -41,6 +41,7 @@ break;
 break;
   }
 }
+
 
 
 SFEVENT SFEvent::GetCode() {

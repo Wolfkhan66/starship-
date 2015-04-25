@@ -1,6 +1,6 @@
 #include "SFApp.h"
 
-	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), 	is_running(true), sf_window(window) {
+	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0),	is_running(true), sf_window(window) {
   	int canvas_w, canvas_h;
   		SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
 
@@ -10,40 +10,53 @@
   			player->SetPosition(player_pos);
 
 		// spawn aliens
-	const int number_of_aliens = 5;
+	const int number_of_aliens = 7;
 		for(int i=0; i<number_of_aliens; i++) {
 			auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-			auto pos = Point2 (rand() % (40 + 640), rand() %(600 + 3000));
+			auto pos = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
 					alien->SetPosition(pos);
 					aliens.push_back(alien);
 	}
 
-		// spawn background1
-			auto background1 = make_shared<SFAsset>(SFASSET_BACKGROUND1, sf_window);
-			auto pos = Point2 (0,0);
-					background1->SetPosition(pos);
-					background1s.push_back(background1);
-		
 		//spawn debris
-  const int number_of_debris = 8;
+  const int number_of_debris = 10;
 		for(int i=0; i<number_of_debris; i++) {
 			auto debris = make_shared<SFAsset>(SFASSET_DEBRIS, sf_window);
-			auto debris_pos = Point2 (rand() % (40 + 640), rand() %(600 + 3000));
+			auto debris_pos = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
 					debris->SetPosition(debris_pos);
 					debrise.push_back(debris);
 	}
 
-		//spawn coins
+	//spawn coins
 	const int number_of_coins = 3;
 		for(int i=0; i<number_of_coins; i++) {
 			auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
-			auto pos  = Point2 (rand() % (40 + 640), rand() %(600 + 3000));
+			auto pos  = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
 					coin->SetPosition(pos);
 					coins.push_back(coin);
 		}
-	}
+	
+	//spawn stars
+	const int number_of_stars = 25;
+		for(int i=0; i<number_of_stars; i++) {
+			auto star = make_shared<SFAsset>(SFASSET_STAR, sf_window);
+			auto pos = Point2 (rand() %(40 + 600), rand() %(600+800));
+					star->SetPosition(pos);
+					stars.push_back(star);
+		}
+	
+
+	//Spawn healthpack
+		const int number_of_healthpacks = 1;
+					for(int i=0; i<number_of_healthpacks; i++) {
+			auto healthpack = make_shared<SFAsset>(SFASSET_HEALTHPACK, sf_window);
+			auto hp_pos  = Point2 (320,5000);
+					healthpack->SetPosition(hp_pos);
+					healthpacks.push_back(healthpack);
+					}
 
 
+}
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
@@ -110,6 +123,14 @@ void SFApp::OnUpdateWorld() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
+
+// star movement
+	for(auto s: stars){
+		s->CoinM();
+		}
+
+
+
 // Update projectile positions
 	for(auto p: projectiles) {
 		p->GoNorth();
@@ -120,14 +141,28 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		}
 	}
 
-
+// healthpack movement
+	for(auto hp : healthpacks){
+				hp->CoinM();
+// check player collision with healthpack
+			if(player->CollidesWith(hp)) {
+				PlayerHP = PlayerHP + 25;
+				hp->HandleCollision();
+				cout << "Collected Health!" << endl;
+				cout << "HP"<< PlayerHP << endl;
+		}
+	}
+	
+// coin movement
 	for(auto c : coins) {
 		c->CoinM();
 // Check player collision with coin
 		if(player->CollidesWith(c)) {
-			cout << "Collected coin!" << endl;
 			Points = Points + 100;
+			HealthPackSeed = HealthPackSeed + 100;
 			c->HandleCollision();
+			cout << "Collected coin!" << endl;
+			cout << "Score:" << Points << endl;
 		}
 	}
 
@@ -136,10 +171,10 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		a->AlienM();
 // Check player collision with alien
 		if(player->CollidesWith(a)) {
-			cout << "Hit by alien!" << endl;
-			cout << "HP"<< PlayerHP << endl;
 			PlayerHP = PlayerHP - 15;
 			a->HandleCollision();
+			cout << "Hit by alien!" << endl;
+			cout << "HP"<< PlayerHP << endl;
 		}
 	}
 
@@ -148,10 +183,10 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		d->DebrisM();
 // Check player collision with alien
 		if(player->CollidesWith(d)) {
-			cout << "Hit by debris!" << endl;
-			cout << "HP"<< PlayerHP << endl;
 			PlayerHP = PlayerHP - 5;
 			d->HandleCollision();
+			cout << "Hit by debris!" << endl;
+			cout << "HP"<< PlayerHP << endl;
 		}
 	}
 
@@ -159,11 +194,12 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 	for(auto p : projectiles) {
 		for(auto a : aliens) {
 			if(p->CollidesWith(a)) {
-				cout << "Killed an enemy!" << endl;
-				cout << "Score:" << Points << endl;
 				Points = Points + 5;
+				HealthPackSeed = HealthPackSeed + 5;
 				p->HandleCollision();
 				a->HandleCollision();
+				cout << "Killed an enemy!" << endl;
+				cout << "Score:" << Points << endl;
 			}
 		}
 	}
@@ -172,37 +208,17 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 	for(auto p : projectiles) {
 		for(auto d : debrise) {
 			if(p->CollidesWith(d)) {
-				cout << "destroyed debris!" << endl;
 				Points = Points + 1;
+				HealthPackSeed = HealthPackSeed + 1;
 				p->HandleCollision();
 				d->HandleCollision();
+			 cout << "destroyed debris!" << endl;
+			 cout << "Score:" << Points << endl;
 			}
 		}
 	}
-
-/*// Remove dead aliens (the long way)
-	list<shared_ptr<SFAsset>> alienTemp;
-		for(auto a : aliens) {
-			if(a->IsAlive()) {
-				alienTemp.push_back(a);
-			}
-		}
-			aliens.clear();
-			aliens = list<shared_ptr<SFAsset>>(alienTemp);
-
-
-// Remove dead debris 
-	list<shared_ptr<SFAsset>> debrisTemp;
-		for(auto d : debrise) {
-			if(d->IsAlive()) {
-				debrisTemp.push_back(d);
-			}
-		}
-			debrise.clear();
-			debrise = list<shared_ptr<SFAsset>>(debrisTemp);
-*/
-
-// Remove all dead projectiles
+	
+	// Remove all dead projectiles
 	list<shared_ptr<SFAsset>> projTemp;
 		for(auto p : projectiles) {
 			if(p->IsAlive()) {
@@ -214,21 +230,58 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		}
 			projectiles.clear();
 			projectiles = list<shared_ptr<SFAsset>>(projTemp);
+			
+			}
 
-}
+/*
+// Remove dead aliens (the long way)
+	list<shared_ptr<SFAsset>> alienTemp;
+		for(auto a : aliens) {
+			if(a->IsAlive()) {
+				alienTemp.push_back(a);
+			}
+		}
+			aliens.clear();
+		  aliens = list<shared_ptr<SFAsset>>(alienTemp);
 
 
+// Remove dead debris 
+	list<shared_ptr<SFAsset>> debrisTemp;
+		for(auto d : debrise) {
+			if(d->IsAlive()) {
+				debrisTemp.push_back(d);
+			}
+		}
+			debrise.clear();
+			debrise = list<shared_ptr<SFAsset>>(debrisTemp);
+
+
+
+// Remove all dead healthpacks
+	list<shared_ptr<SFAsset>> hpTemp;
+		for(auto hp : healthpacks) {
+			if(hp->IsAlive()) {
+				hpTemp.push_back(hp);
+		}
+			healthpacks.clear();
+			healthpacks = list<shared_ptr<SFAsset>>(hpTemp);
+			
+				// Remove all dead coins
+	list<shared_ptr<SFAsset>> coinTemp;
+		for(auto c : coins) {
+			if(c->IsAlive()) {
+				coinTemp.push_back(c);
+			}
+		}
+			coins.clear();
+			coins = list<shared_ptr<SFAsset>>(coinTemp);
+*/
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
 
   void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
-
-	//render background 1
-for (auto b1:background1s){
-	b1->OnRender();
-	}
 
   // draw the player
   	player->OnRender();
@@ -239,6 +292,33 @@ for (auto b1:background1s){
 			p->OnRender();
 		}
 	}
+	
+	
+		// draw healthpacks
+	 for(auto hp: healthpacks) {
+	 		auto hpPos = hp->GetPosition();
+	 	// if the player gains 1000 points - spawn a health pack
+	 	if( HealthPackSeed > 1000){
+			HealthPackSeed = HealthPackSeed - 1000;
+			int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+			auto pos = Point2 (rand() % (500), 600);
+						hp->SetPosition(pos);
+						hp->SetHealthPackAlive();
+		}	
+		// render the alive healthpacks
+		else if(hp->IsAlive()&& !(hpPos.getY()< 0)) {
+			hp->OnRender();
+			}
+		else {
+		// after the initial health pack is spawned, hold the health pack off screen until player gains sufficient points.
+		int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+			auto pos = Point2 (-10, -10);
+						hp->SetPosition(pos);
+						hp->SetHealthPackAlive();
+	}
+	}
 
 	//alien generation
   	for(auto a: aliens) {
@@ -248,7 +328,7 @@ for (auto b1:background1s){
 				else {
 					int w, h;
 						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (20 + 500), 550);
+					auto pos = Point2 (rand() % (40 + 600), 3000);
 						a->SetPosition(pos);
 						a->SetAlienAlive();
   			}
@@ -262,7 +342,7 @@ for (auto b1:background1s){
 				else {
 					int w, h;
 						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (500), 550);
+					auto pos = Point2 (rand() % (40 + 600), 3000);
 						d->SetPosition(pos);
 						d->SetDebrisAlive();
 				}
@@ -272,14 +352,30 @@ for (auto b1:background1s){
 	//coin generation
   	for(auto c: coins) {
 			auto cPos = c->GetPosition();
-				if(c->IsAlive() && !(cPos.getY() < -30.0f)) {
+				if(c->IsAlive() && !(cPos.getY() < -30.0f)) 
+					{
 					c->OnRender();	}
 				else {
 					int w, h;
 						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (20 + 500), 550);
+					auto pos = Point2 (rand() % (40 + 600), 3000);
 						c->SetPosition(pos);
 						c->SetCoinAlive();
+				}
+  	}
+  	
+  		//star generation
+  	for(auto s: stars) {
+			auto sPos = s->GetPosition();
+				if(s->IsAlive() && !(sPos.getY() < -30.0f)) 
+					{
+					s->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto pos = Point2 (rand() % (40 + 600), 700);
+						s->SetPosition(pos);
+						s->SetStarAlive();
 				}
   	}
 
@@ -297,3 +393,9 @@ void SFApp::FireProjectile() {
   pb->SetPosition(v);
   projectiles.push_back(pb);
 }
+
+
+
+
+
+
