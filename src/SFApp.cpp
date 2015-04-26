@@ -1,4 +1,7 @@
+
 #include "SFApp.h"
+
+
 
 	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0),	is_running(true), sf_window(window) {
   	int canvas_w, canvas_h;
@@ -36,15 +39,26 @@
 					coins.push_back(coin);
 		}
 	
-	//spawn stars
-	const int number_of_stars = 25;
-		for(int i=0; i<number_of_stars; i++) {
-			auto star = make_shared<SFAsset>(SFASSET_STAR, sf_window);
-			auto pos = Point2 (rand() %(40 + 600), rand() %(600+800));
-					star->SetPosition(pos);
-					stars.push_back(star);
-		}
+
 	
+	//spawn cloud2
+	const int number_of_clouds2 = 3;
+		for(int i=0; i<number_of_coins; i++) {
+			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD2, sf_window);
+			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud2->SetPosition(c2pos);
+					clouds2.push_back(cloud2);
+	}
+
+	//spawn cloud4
+	const int number_of_clouds4 = 3;
+		for(int i=0; i<number_of_coins; i++) {
+			auto cloud4 = make_shared<SFAsset>(SFASSET_CLOUD4, sf_window);
+			auto c4pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud4->SetPosition(c4pos);
+					clouds4.push_back(cloud4);
+
+	}
 
 	//Spawn healthpack
 		const int number_of_healthpacks = 1;
@@ -54,9 +68,23 @@
 					healthpack->SetPosition(hp_pos);
 					healthpacks.push_back(healthpack);
 					}
+/*		
+	//Spawn Healthbar
+		const int number_of_healthbars = 10;
+					for(int i=0; i<number_of_healthbars; i++) {
+		        hbars[i] = i;
+			auto healthbar = make_shared<SFAsset>(SFASSET_HEALTHBAR, sf_window);
+			auto hb_pos = Point2((660/number_of_healthbars) * i, 50.0f);
+					healthbar->SetPosition(hb_pos);
+					healthbars.push_back(healthbar);
+					}
 
 
+
+*/
 }
+
+
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
@@ -94,12 +122,11 @@ int SFApp::OnExecute() {
 }
 
 
-//////////////////////////////////////////////////
-//////////////////////////////////////////////////
 
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
 
 void SFApp::OnUpdateWorld() {
-
 
 
  const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
@@ -125,10 +152,13 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
 
 // star movement
-	for(auto s: stars){
-		s->CoinM();
-		}
 
+	for(auto cd2: clouds2){
+		cd2->CoinM();
+		}
+	for(auto cd4: clouds4){
+		cd4->CoinM();
+		}
 
 
 // Update projectile positions
@@ -233,7 +263,12 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 			
 			}
 
+
 /*
+ for(auto hb :healthbars){
+	if(playerHP 
+
+
 // Remove dead aliens (the long way)
 	list<shared_ptr<SFAsset>> alienTemp;
 		for(auto a : aliens) {
@@ -293,6 +328,11 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		}
 	}
 	
+
+	// draw health
+		for(auto hb: healthbars){
+	hb->OnRender();
+}
 	
 		// draw healthpacks
 	 for(auto hp: healthpacks) {
@@ -364,18 +404,33 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				}
   	}
   	
-  		//star generation
-  	for(auto s: stars) {
-			auto sPos = s->GetPosition();
-				if(s->IsAlive() && !(sPos.getY() < -30.0f)) 
+  		//clouds2 generation
+  	for(auto cd2: clouds2) {
+			auto cd2Pos = cd2->GetPosition();
+				if(cd2->IsAlive() && !(cd2Pos.getY() < -30.0f)) 
 					{
-					s->OnRender();	}
+					cd2->OnRender();	}
 				else {
 					int w, h;
 						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (40 + 600), 700);
-						s->SetPosition(pos);
-						s->SetStarAlive();
+					auto cd2pos = Point2 (rand() % (40 + 600), 3000);
+						cd2->SetPosition(cd2pos);
+						cd2->SetCloud2Alive();
+				}
+  	}
+
+  		//clouds4 generation
+  	for(auto cd4: clouds4) {
+			auto cd4Pos = cd4->GetPosition();
+				if(cd4->IsAlive() && !(cd4Pos.getY() < -30.0f)) 
+					{
+					cd4->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto cd4pos = Point2 (rand() % (40 + 600), 3000);
+						cd4->SetPosition(cd4pos);
+						cd4->SetCloud4Alive();
 				}
   	}
 

@@ -42,7 +42,10 @@ private:
   list<shared_ptr<SFAsset> > coins;
   list<shared_ptr<SFAsset> > debrise;
   list<shared_ptr<SFAsset> > healthpacks;
-  list<shared_ptr<SFAsset> > stars;
+  list<shared_ptr<SFAsset> > healthbars;
+  list<shared_ptr<SFAsset> > clouds2;
+  list<shared_ptr<SFAsset> > clouds4;
+
 
   int fire;
   int PlayerHP = 100;

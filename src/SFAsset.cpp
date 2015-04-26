@@ -21,11 +21,17 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_DEBRIS:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/debris.png");
     break;
-  case SFASSET_STAR:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/star.png");
+  case SFASSET_CLOUD2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud2.png");
+    break;
+  case SFASSET_CLOUD4:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud4.png");
     break;
   case SFASSET_HEALTHPACK:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");
+    break;
+  case SFASSET_HEALTHBAR:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/star.png");
     break;
   }
 
@@ -270,8 +276,14 @@ void SFAsset::SetHealthPackAlive() {
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-void SFAsset::SetStarAlive() {
-  type = SFASSET_STAR;
+void SFAsset::SetCloud2Alive() {
+  type = SFASSET_CLOUD2;
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFAsset::SetCloud4Alive() {
+  type = SFASSET_CLOUD4;
 }
 
 //////////////////////////////////////////////
@@ -285,7 +297,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_STAR == type || SFASSET_HEALTHPACK == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_HEALTHPACK == type|| SFASSET_HEALTHBAR == type || SFASSET_CLOUD2 == type || SFASSET_CLOUD4 == type ) {
     SetNotAlive();
   }
 }
