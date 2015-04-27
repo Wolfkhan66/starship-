@@ -653,11 +653,24 @@ void SFApp::PlayerHealth(int PlayerHP){
 
 	for(int i = 0; i < number_of_healthbars; i++) {
 		// place an alien at width/number_of_aliens * i
-		auto healthbar = make_shared<SFAsset>(SFASSET_HEALTHBAR, sf_window);
-		auto pos = Point2(15+ (i*5), 470);
-		// Make enemy at position and set it's health
-			healthbar->SetPosition(pos);
-			healthbars.push_back(healthbar);	
+		if(PlayerHP >= 50){
+			auto healthbarblue = make_shared<SFAsset>(SFASSET_HEALTHBARBLUE, sf_window);
+			auto pos = Point2(15+ (i*5), 470);
+			healthbarblue->SetPosition(pos);
+			healthbars.push_back(healthbarblue);
+		}
+		else if(PlayerHP >= 25){
+			auto healthbaryellow = make_shared<SFAsset>(SFASSET_HEALTHBARYELLOW, sf_window);
+			auto pos = Point2(15+ (i*5), 470);
+			healthbaryellow->SetPosition(pos);
+			healthbars.push_back(healthbaryellow);
+		}
+		else{
+			auto healthbarred= make_shared<SFAsset>(SFASSET_HEALTHBARRED, sf_window);
+			auto pos = Point2(15+ (i*5), 470);
+			healthbarred->SetPosition(pos);
+			healthbars.push_back(healthbarred);	
+		}
 	}
 }
 //////////////////////////////////////////////
