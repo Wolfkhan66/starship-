@@ -27,8 +27,10 @@ public:
   void    OnUpdateWorld();
   void    OnRender();
   void    FireProjectile();
+  void    Explosion();
   void    GameOver();
   void    Pause();
+  void	  PlayerHealth(int PlayerHP);
 
 
 private:
@@ -40,10 +42,12 @@ private:
   shared_ptr<SFWindow>       sf_window;
 
   shared_ptr<SFAsset>        player;
+  shared_ptr<SFAsset>        hud;
   shared_ptr<SFAsset>        gameover;
   shared_ptr<SFBoundingBox>  app_box;
 
   list<shared_ptr<SFAsset> > projectiles;
+  list<shared_ptr<SFAsset> > explosions;
   list<shared_ptr<SFAsset> > aliens;
   list<shared_ptr<SFAsset> > coins;
   list<shared_ptr<SFAsset> > rangers;
@@ -54,7 +58,7 @@ private:
   list<shared_ptr<SFAsset> > clouds;
   list<shared_ptr<SFAsset> > clouds2;
 
-
+  
   int fire = 0;
   int fireN = 1;
   int PlayerHP = 100;
@@ -65,7 +69,7 @@ private:
   int Timer = 0;
   int currentSecond = 0;
   int powertime = 0;
-
+  int xtime = 0;
   SFError OnInit();
 };
 

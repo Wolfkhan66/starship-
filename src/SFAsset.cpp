@@ -37,7 +37,13 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");
     break;
   case SFASSET_HEALTHBAR:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/star.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar.png");
+    break;
+  case SFASSET_EXPLOSION:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/explosion.png");
+    break;
+  case SFASSET_HUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/hud.png");
     break;
   case SFASSET_GAMEOVER:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/gameover.png");
@@ -320,7 +326,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_HEALTHBAR == type || SFASSET_SCOUT == type|| SFASSET_PICKUP == type ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_HEALTHBAR == type || SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type) {
     SetNotAlive();
   }
 }
