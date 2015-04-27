@@ -31,6 +31,12 @@ public:
   void    GameOver();
   void    Pause();
   void	  PlayerHealth(int PlayerHP);
+  void	  SpawnAlien(int AlienNo);
+  void	  SpawnRanger(int RangerNo);
+  void	  SpawnScout(int ScoutNo);
+  void	  SpawnCoin(int CoinNo);
+  void	  SpawnHealthPack(int HealthPackNo);
+  void	  SpawnPickUp(int PickUpNo);
 
 
 private:

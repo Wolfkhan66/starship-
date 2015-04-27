@@ -20,7 +20,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Spawn hud
+//	Spawn hud for healthbars
 	hud  = make_shared<SFAsset>(SFASSET_HUD, sf_window);
   		auto hud_pos = Point2(60, 480);
   			hud->SetPosition(hud_pos);
@@ -34,69 +34,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// spawn aliens
-	const int number_of_aliens = 7;
-		for(int i=0; i<number_of_aliens; i++) {
-			auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-			auto pos = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
-					alien->SetPosition(pos);
-					aliens.push_back(alien);
-	}
+	SpawnAlien(7);
+	SpawnRanger(10);
+	SpawnScout(5);
 
+	SpawnCoin(3);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-		//spawn debris
-  const int number_of_rangers = 10;
-		for(int i=0; i<number_of_rangers; i++) {
-			auto ranger = make_shared<SFAsset>(SFASSET_RANGER, sf_window);
-			auto ranger_pos = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
-					ranger->SetPosition(ranger_pos);
-					rangers.push_back(ranger);
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//spawn coins
-	const int number_of_coins = 3;
-		for(int i=0; i<number_of_coins; i++) {
-			auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
-			auto pos  = Point2 (rand() % (40 + 600), rand() %(600 + 3000));
-					coin->SetPosition(pos);
-					coins.push_back(coin);
-		}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Spawn healthpack
-		const int number_of_healthpacks = 1;
-					for(int i=0; i<number_of_healthpacks; i++) {
-			auto healthpack = make_shared<SFAsset>(SFASSET_HEALTHPACK, sf_window);
-			auto hp_pos  = Point2 (0,0);
-					healthpack->SetPosition(hp_pos);
-					healthpacks.push_back(healthpack);
-					}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Spawn pickup
-		const int number_of_pickups = 1;
-					for(int i=0; i<number_of_pickups; i++) {
-			auto pickup = make_shared<SFAsset>(SFASSET_PICKUP, sf_window);
-			auto pu_pos  = Point2 (0,0);
-					pickup->SetPosition(pu_pos);
-					pickups.push_back(pickup);
-					}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Spawn scout
-		const int number_of_scouts = 5;
-					for(int i=0; i<number_of_scouts; i++) {
-			auto scout = make_shared<SFAsset>(SFASSET_SCOUT, sf_window);
-			auto sc_pos  = Point2 (320,5000);
-					scout->SetPosition(sc_pos);
-					scouts.push_back(scout);
-					}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	//spawn cloud on top
@@ -119,21 +63,6 @@
 					clouds2.push_back(cloud2);
 
 	}
-
-/*		
-	//Spawn Healthbar
-		const int number_of_healthbars = 10;
-					for(int i=0; i<number_of_healthbars; i++) {
-		        hbars[i] = i;
-			auto healthbar = make_shared<SFAsset>(SFASSET_HEALTHBAR, sf_window);
-			auto hb_pos = Point2((660/number_of_healthbars) * i, 50.0f);
-					healthbar->SetPosition(hb_pos);
-					healthbars.push_back(healthbar);
-					}
-
-
-
-*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +155,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//GameChecks
+//Check Events
 
 //check player health
 	if(PlayerHP <= 0){
@@ -239,6 +168,19 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		fireN = 1;
 	}
 
+// check healthpack spawn
+	if(HealthPackSeed >= 1000){
+			HealthPackSeed = HealthPackSeed - 1000;
+			SpawnHealthPack(1);
+	}
+
+
+//check pickup spawn
+	if(PickUpSeed >= 100 ){
+		PickUpSeed = PickUpSeed - 100;
+		SpawnPickUp(1);
+	}
+	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // cloud movement
@@ -267,6 +209,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 // healthpack movement
 	for(auto hp : healthpacks){
 				hp->CollectibleM();
+			auto hpPos = hp->GetPosition();
 // check player collision with healthpack
 			if(player->CollidesWith(hp)) {
 				PlayerHP = PlayerHP + 25;
@@ -274,22 +217,30 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				cout << "Collected Health!" << endl;
 				cout << "HP"<< PlayerHP << endl;
 		}
+		else if(hpPos.getY() < -30.0f){
+				hp->HandleCollision();
+				SpawnHealthPack(1);
 	}
 
-
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // pickup movement
 	for(auto pu : pickups){
 				pu->CollectibleM();
+			auto puPos = pu->GetPosition();
 // check player collision with pickup
 			if(player->CollidesWith(pu)) {
 					pu->HandleCollision();
 					powertime = currentSecond;
 	      	fireN = 20;
 					cout << "Collected Pickup!" << endl;
-					cout << "Maximum fire"<< endl;     				
+					cout << "Maximum fire"<< endl;     			
 			}	
+		else if(puPos.getY() < -30.0f){
+				pu->HandleCollision();
+				SpawnPickUp(1);
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,6 +248,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 // coin movement
 	for(auto c : coins) {
 		c->CollectibleM();
+			auto cPos = c->GetPosition();
 // Check player collision with coin
 		if(player->CollidesWith(c)) {
 			Points = Points + 100;
@@ -304,6 +256,11 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 			c->HandleCollision();
 			cout << "Collected coin!" << endl;
 			cout << "Score:" << Points << endl;
+			SpawnCoin(1);
+		}
+		else if(cPos.getY() < -30.0f){
+				c->HandleCollision();
+				SpawnCoin(1);
 		}
 	}
 
@@ -312,12 +269,19 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 // Update alien positions
 	for(auto a : aliens) {
 		a->AlienM();
+			auto aPos = a->GetPosition();
 // Check player collision with alien
-		if(player->CollidesWith(a)) {
+		if(player->CollidesWith(a) && EnemiesDead < 50) {
 			PlayerHP = PlayerHP - 15;
 			a->HandleCollision();
 			cout << "Hit by alien!" << endl;
 			cout << "HP"<< PlayerHP << endl;
+			EnemiesDead++;
+			SpawnAlien(1);
+		}
+		else if(aPos.getY() < -30.0f){
+				a->HandleCollision();
+				SpawnAlien(1);
 		}
 	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,12 +289,18 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 // Update rangers
 	for(auto r : rangers) {
 		r->RangerM();
+			auto rPos = r->GetPosition();
 // Check player collision with alien
 		if(player->CollidesWith(r)) {
-			PlayerHP = PlayerHP - 5;
+			PlayerHP = PlayerHP - 10;
 			r->HandleCollision();
 			cout << "Hit by ranger!" << endl;
 			cout << "HP"<< PlayerHP << endl;
+					SpawnRanger(1);
+		}
+		else if(rPos.getY() < -30.0f){
+				r->HandleCollision();
+				SpawnRanger(1);
 		}
 	}
 
@@ -339,12 +309,18 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 // Update scouts
 	for(auto s : scouts) {
 		s->ScoutM();
+			auto sPos = s->GetPosition();
 // Check player collision with alien
 		if(player->CollidesWith(s)) {
-			PlayerHP = PlayerHP - 2;
+			PlayerHP = PlayerHP - 5;
 			s->HandleCollision();
 			cout << "Hit by scout!" << endl;
 			cout << "HP"<< PlayerHP << endl;
+			SpawnScout(1);
+		}
+		else if(sPos.getY() < -30.0f){
+				s->HandleCollision();
+				SpawnScout(1);
 		}
 	}
 
@@ -361,6 +337,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				a->HandleCollision();
 				cout << "Killed an enemy!" << endl;
 				cout << "Score:" << Points << endl;
+					SpawnAlien(1);
 			}
 		}
 	}
@@ -378,6 +355,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				r->HandleCollision();
 			 cout << "destroyed ranger!" << endl;
 			 cout << "Score:" << Points << endl;
+			SpawnRanger(1);
 			}
 		}
 	}
@@ -395,6 +373,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				s->HandleCollision();
 			 cout << "destroyed scout!" << endl;
 			 cout << "Score:" << Points << endl;
+				SpawnScout(1);
 			}
 		}
 	}
@@ -414,6 +393,76 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 			projectiles.clear();
 			projectiles = list<shared_ptr<SFAsset>>(projTemp);
 			
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead aliens
+	list<shared_ptr<SFAsset>> alTemp;
+		for(auto a : aliens) {
+			if(a->IsAlive()) {
+				alTemp.push_back(a);
+			}
+		}
+			aliens.clear();
+			aliens = list<shared_ptr<SFAsset>>(alTemp);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead rangers
+	list<shared_ptr<SFAsset>> rTemp;
+		for(auto r : rangers) {
+			if(r->IsAlive()) {
+				rTemp.push_back(r);
+			}
+		}
+			rangers.clear();
+			rangers = list<shared_ptr<SFAsset>>(rTemp);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead scouts
+	list<shared_ptr<SFAsset>> sTemp;
+		for(auto s : scouts) {
+			if(s->IsAlive()) {
+				sTemp.push_back(s);
+			}
+		}
+			scouts.clear();
+			scouts = list<shared_ptr<SFAsset>>(sTemp);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead coins
+	list<shared_ptr<SFAsset>> cTemp;
+		for(auto c : coins) {
+			if(c->IsAlive()) {
+				cTemp.push_back(c);
+			}
+		}
+			coins.clear();
+			coins = list<shared_ptr<SFAsset>>(cTemp);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead healthpacks
+	list<shared_ptr<SFAsset>> hTemp;
+		for(auto h : healthpacks) {
+			if(h->IsAlive()) {
+				hTemp.push_back(h);
+			}
+		}
+			healthpacks.clear();
+			healthpacks = list<shared_ptr<SFAsset>>(hTemp);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove all dead Pickups
+	list<shared_ptr<SFAsset>> puTemp;
+		for(auto pu : pickups) {
+			if(pu->IsAlive()) {
+				puTemp.push_back(pu);
+			}
+		}
+			pickups.clear();
+			pickups = list<shared_ptr<SFAsset>>(puTemp);
 
 //Increase Time counter by 1
 Timer++;
@@ -423,7 +472,8 @@ currentSecond = Timer / 60;
 	healthbars.clear();
 	healthbars = list<shared_ptr<SFAsset>>(hbTemp);
   PlayerHealth(PlayerHP);
-			}
+
+} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -481,16 +531,8 @@ currentSecond = Timer / 60;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	//alien generation
   	for(auto a: aliens) {
-			auto aPos = a->GetPosition();
-				if(a->IsAlive() && !(aPos.getY() < -30.0f)) {
-					a->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (40 + 600), 3000);
-						a->SetPosition(pos);
-						a->SetAlienAlive();
-  			}
+					a->OnRender();	
+			
 		}
 
 
@@ -498,16 +540,7 @@ currentSecond = Timer / 60;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	//ranger generation
 		for(auto r: rangers) {
-			auto rPos = r->GetPosition();
-				if(r->IsAlive() && !(rPos.getY() < -30.0f)) {
-					r->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (40 + 600), 3000);
-						r->SetPosition(pos);
-						r->SetRangerAlive();
-				}
+					r->OnRender();	
 		}
 
 
@@ -515,16 +548,7 @@ currentSecond = Timer / 60;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	//scout generation
 		for(auto s: scouts) {
-			auto sPos = s->GetPosition();
-				if(s->IsAlive() && !(sPos.getY() < -30.0f)) {
-					s->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (40 + 600), 3000);
-						s->SetPosition(pos);
-						s->SetScoutAlive();
-				}
+					s->OnRender();	
 		}
 
 
@@ -533,17 +557,7 @@ currentSecond = Timer / 60;
 
 	//coin generation
   	for(auto c: coins) {
-			auto cPos = c->GetPosition();
-				if(c->IsAlive() && !(cPos.getY() < -30.0f)) 
-					{
-					c->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto pos = Point2 (rand() % (40 + 600), 3000);
-						c->SetPosition(pos);
-						c->SetCoinAlive();
-				}
+				c->OnRender();	
   	}
 
 
@@ -552,28 +566,7 @@ currentSecond = Timer / 60;
 
 		// draw pickups
 	 for(auto pu: pickups) {
-	 		auto puPos = pu->GetPosition();
-	 	// if the player gains 1000 points - spawn a pickup
-	 	if( PickUpSeed > 100){
-			PickUpSeed = PickUpSeed - 100;
-			int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-			auto pos = Point2 (rand() % (500), 600);
-						pu->SetPosition(pos);
-						pu->SetPickUpAlive();
-		}	
-		// render the alive pickups
-		else if(pu->IsAlive()&& !(puPos.getY()< 0)) {
 			pu->OnRender();
-			}
-		else {
-		// after the initial pickup is spawned, hold the pickup off screen until player gains sufficient points.
-		int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-			auto pos = Point2 (-10, -10);
-						pu->SetPosition(pos);
-						pu->SetPickUpAlive();
-	}
 	}
 
 	
@@ -582,28 +575,7 @@ currentSecond = Timer / 60;
 
 		// draw healthpacks
 	 for(auto hp: healthpacks) {
-	 		auto hpPos = hp->GetPosition();
-	 	// if the player gains 1000 points - spawn a health pack
-	 	if( HealthPackSeed > 1000){
-			HealthPackSeed = HealthPackSeed - 1000;
-			int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-			auto pos = Point2 (rand() % (500), 600);
-						hp->SetPosition(pos);
-						hp->SetHealthPackAlive();
-		}	
-		// render the alive healthpacks
-		else if(hp->IsAlive()&& !(hpPos.getY()< 0)) {
 			hp->OnRender();
-			}
-		else {
-		// after the initial health pack is spawned, hold the health pack off screen until player gains sufficient points.
-		int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-			auto pos = Point2 (-10, -10);
-						hp->SetPosition(pos);
-						hp->SetHealthPackAlive();
-	}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -627,7 +599,7 @@ currentSecond = Timer / 60;
  
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Healthbars
+	// Healthbars  // render last so they are always on
 		for (auto hb : healthbars){
 			hb->OnRender();
 		}
@@ -647,31 +619,104 @@ currentSecond = Timer / 60;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+////Render the health bar in the health bar hud
 void SFApp::PlayerHealth(int PlayerHP){
-
+  
+	//the space for health bars in the hud is 100pixels wide, the health bar assets are 5 pixels wide so
+	//since the players health starts at 100, divided it by 5 to get a number between 1 and 20
 	int number_of_healthbars = PlayerHP / 5;
-
+	
+	// for 1 to number of healthbars
 	for(int i = 0; i < number_of_healthbars; i++) {
-		// place an alien at width/number_of_aliens * i
+	//If the players health is above 50 render the blue bars
 		if(PlayerHP >= 50){
 			auto healthbarblue = make_shared<SFAsset>(SFASSET_HEALTHBARBLUE, sf_window);
-			auto pos = Point2(15+ (i*5), 470);
+			auto pos = Point2(13+ (i*5), 470);
 			healthbarblue->SetPosition(pos);
 			healthbars.push_back(healthbarblue);
 		}
+	// if the health is lower than 50 but above 25 , render the yellow bars
 		else if(PlayerHP >= 25){
 			auto healthbaryellow = make_shared<SFAsset>(SFASSET_HEALTHBARYELLOW, sf_window);
-			auto pos = Point2(15+ (i*5), 470);
+			auto pos = Point2(13+ (i*5), 470);
 			healthbaryellow->SetPosition(pos);
 			healthbars.push_back(healthbaryellow);
 		}
+	// if the health is lower than 25 render the red bars
 		else{
 			auto healthbarred= make_shared<SFAsset>(SFASSET_HEALTHBARRED, sf_window);
-			auto pos = Point2(15+ (i*5), 470);
+			auto pos = Point2(13 + (i*5), 470);
 			healthbarred->SetPosition(pos);
 			healthbars.push_back(healthbarred);	
 		}
 	}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnAlien(int AlienNo){
+
+for(int i = 0; i < AlienNo; i++) {
+		auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				alien->SetPosition(pos);
+				aliens.push_back(alien);
+}
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnRanger(int RangerNo){
+
+for(int i = 0; i < RangerNo; i++) {
+		auto ranger = make_shared<SFAsset>(SFASSET_RANGER, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				ranger->SetPosition(pos);
+				rangers.push_back(ranger);
+}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnScout(int ScoutNo){
+
+for(int i = 0; i < ScoutNo; i++) {
+		auto scout = make_shared<SFAsset>(SFASSET_SCOUT, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				scout->SetPosition(pos);
+				scouts.push_back(scout);
+}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnCoin(int CoinNo){
+
+for(int i = 0; i < CoinNo; i++) {
+		auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				coin->SetPosition(pos);
+				coins.push_back(coin);
+}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnHealthPack(int HealthPackNo){
+
+for(int i = 0; i < HealthPackNo; i++) {
+		auto healthpack = make_shared<SFAsset>(SFASSET_HEALTHPACK, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				healthpack->SetPosition(pos);
+				healthpacks.push_back(healthpack);
+}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnPickUp(int PickUpNo){
+
+for(int i = 0; i < PickUpNo; i++) {
+		auto pickup = make_shared<SFAsset>(SFASSET_PICKUP, sf_window);
+		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				pickup->SetPosition(pos);
+				pickups.push_back(pickup);
+}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -692,6 +737,17 @@ void SFApp::GameOver(){
     		auto go_pos = Point2(320,480);
   			gameover->SetPosition(go_pos);
 		is_paused=true;
+		  fire = 0;
+   fireN = 1;
+   PlayerHP = 100;
+   Points = 0;
+   HealthPackSeed = 0;
+   PickUpSeed = 0;
+   EnemiesDead = 0;
+   Timer = 0;
+   currentSecond = 0;
+   powertime = 0;
+   xtime = 0;
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////

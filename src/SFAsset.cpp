@@ -6,53 +6,63 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   this->id   = ++SFASSETID;
 
   switch (type) {
+
+///////////////////////////player///////////////////////////////
   case SFASSET_PLAYER:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player/player.png");
     break;
   case SFASSET_PROJECTILE:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/projectile.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player/projectile.png");
     break;
+
+///////////////////////////enemies///////////////////////////////
   case SFASSET_ALIEN:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/alien.png");
-    break;
-  case SFASSET_COIN:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/alien.png");
     break;
   case SFASSET_SCOUT:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/scout.png");
-    break;
-  case SFASSET_PICKUP:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/pickup.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/scout.png");
     break;
   case SFASSET_RANGER:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/ranger.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/ranger.png");
     break;
-  case SFASSET_CLOUD:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud.png");
+
+///////////////////////////collectibles///////////////////////////////
+  case SFASSET_COIN:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/coin.png");
     break;
-  case SFASSET_CLOUD2:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud.png");
+  case SFASSET_PICKUP:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/pickup.png");
     break;
   case SFASSET_HEALTHPACK:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/health.png");
     break;
-  case SFASSET_HEALTHBARBLUE:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbarblue.png");
+
+///////////////////////////misc///////////////////////////////
+	case SFASSET_CLOUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
     break;
-  case SFASSET_HEALTHBARYELLOW:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbaryellow.png");
-    break;
-  case SFASSET_HEALTHBARRED:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbarred.png");
+  case SFASSET_CLOUD2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
     break;
   case SFASSET_EXPLOSION:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/explosion.png");
-    break;
-  case SFASSET_HUD:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/hud.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/explosion.png");
     break;
   case SFASSET_GAMEOVER:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/gameover.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/gameover.png");
+    break;
+
+///////////////////////////healthbar///////////////////////////////
+  case SFASSET_HUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/hud.png");
+    break;
+  case SFASSET_HEALTHBARBLUE:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarblue.png");
+    break;
+  case SFASSET_HEALTHBARYELLOW:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbaryellow.png");
+    break;
+  case SFASSET_HEALTHBARRED:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarred.png");
     break;
   }
 
