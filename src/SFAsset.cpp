@@ -18,14 +18,20 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_COIN:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
     break;
-  case SFASSET_DEBRIS:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/debris.png");
+  case SFASSET_SCOUT:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/scout.png");
+    break;
+  case SFASSET_PICKUP:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/pickup.png");
+    break;
+  case SFASSET_RANGER:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/ranger.png");
+    break;
+  case SFASSET_CLOUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud.png");
     break;
   case SFASSET_CLOUD2:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud4.png");
-    break;
-  case SFASSET_CLOUD4:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud4.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud.png");
     break;
   case SFASSET_HEALTHPACK:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/health.png");
@@ -124,7 +130,7 @@ void SFAsset::OnRender() {
 void SFAsset::GoWest() {
   if(SFASSET_PLAYER == type) {
  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
- if(!(c.getX()-32.0f < 0)) {
+ if(!(c.getX()-20.0f < 0)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -139,7 +145,7 @@ void SFAsset::GoEast() {
  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
- if(!(c.getX()+32.0f > w)) {
+ if(!(c.getX()+20.0f > w)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -155,7 +161,7 @@ void SFAsset::GoNorth() {
 
 	Vector2 c = *(bbox->centre) + Vector2(0.0f, 4.0f);
 
- if(!(c.getY()-18.0f > h)) {
+ if(!(c.getY()-20.0f > h)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -175,7 +181,7 @@ void SFAsset::GoSouth() {
 if(SFASSET_PLAYER == type) {
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
 
- if(!(c.getY() < 64.0f)) {
+ if(!(c.getY() < 60.0f)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -186,7 +192,7 @@ if(SFASSET_PLAYER == type) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::CoinM() {
+void SFAsset::CollectibleM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
@@ -200,7 +206,20 @@ if(!(c.getY() < -50.0f)) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::DebrisM() {
+void SFAsset::RangerM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -6.0f);
+if(!(c.getY() < -50.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::ScoutM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
@@ -252,8 +271,8 @@ void SFAsset::SetCoinAlive() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::SetDebrisAlive() {
-  type = SFASSET_DEBRIS;
+void SFAsset::SetRangerAlive() {
+  type = SFASSET_RANGER;
 }
 
 //////////////////////////////////////////////
@@ -272,14 +291,22 @@ void SFAsset::SetHealthPackAlive() {
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-void SFAsset::SetCloud2Alive() {
-  type = SFASSET_CLOUD2;
+
+void SFAsset::SetPickUpAlive() {
+  type = SFASSET_PICKUP;
 }
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-void SFAsset::SetCloud4Alive() {
-  type = SFASSET_CLOUD4;
+
+void SFAsset::SetScoutAlive() {
+  type = SFASSET_SCOUT;
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFAsset::SetCloudAlive() {
+  type = SFASSET_CLOUD;
 }
 
 //////////////////////////////////////////////
@@ -293,7 +320,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_HEALTHPACK == type|| SFASSET_HEALTHBAR == type || SFASSET_CLOUD2 == type || SFASSET_CLOUD4 == type ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_HEALTHBAR == type || SFASSET_SCOUT == type|| SFASSET_PICKUP == type ) {
     SetNotAlive();
   }
 }

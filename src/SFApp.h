@@ -46,20 +46,25 @@ private:
   list<shared_ptr<SFAsset> > projectiles;
   list<shared_ptr<SFAsset> > aliens;
   list<shared_ptr<SFAsset> > coins;
-  list<shared_ptr<SFAsset> > debrise;
+  list<shared_ptr<SFAsset> > rangers;
+  list<shared_ptr<SFAsset> > scouts;
+  list<shared_ptr<SFAsset> > pickups;
   list<shared_ptr<SFAsset> > healthpacks;
   list<shared_ptr<SFAsset> > healthbars;
+  list<shared_ptr<SFAsset> > clouds;
   list<shared_ptr<SFAsset> > clouds2;
-  list<shared_ptr<SFAsset> > clouds4;
 
 
-  int fire;
-  int fireN = 3;
+  int fire = 0;
+  int fireN = 1;
   int PlayerHP = 100;
   int Points = 0;
-  int HealthPackSeed = 0 ;
-  int AliensDead = 0;
-  int DebrisDead = 0;
+  int HealthPackSeed = 0;
+  int PickUpSeed = 0;
+  int EnemiesDead = 0;
+  int Timer = 0;
+  int currentSecond = 0;
+  int powertime = 0;
 
   SFError OnInit();
 };

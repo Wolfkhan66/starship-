@@ -21,7 +21,7 @@ using namespace std;
  * enum to mark the type of the SFAsset.  If we add more asset types then
  * the subclassing strategy becomes a better option.
  */
-enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_ALIEN, SFASSET_COIN, SFASSET_DEBRIS , SFASSET_CLOUD2 ,SFASSET_CLOUD4 , SFASSET_HEALTHPACK, SFASSET_HEALTHBAR, SFASSET_GAMEOVER};
+enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_ALIEN, SFASSET_COIN, SFASSET_RANGER , SFASSET_CLOUD,SFASSET_CLOUD2, SFASSET_HEALTHPACK, SFASSET_HEALTHBAR, SFASSET_GAMEOVER, SFASSET_SCOUT, SFASSET_PICKUP};
 
 class SFAsset {
 public:
@@ -38,24 +38,24 @@ public:
   virtual void      GoWest();
   virtual void      GoNorth();
   virtual void      GoSouth();
-  virtual void 	    CoinM();
-  virtual void 	    DebrisM();
+  virtual void 	    CollectibleM();
+  virtual void 	    RangerM();
+  virtual void 	    ScoutM();
   virtual void 	    AlienM();
 
   virtual void	    SetCoinAlive();
   virtual void	    SetAlienAlive();
-  virtual void	    SetDebrisAlive();
+  virtual void	    SetRangerAlive();
+  virtual void	    SetScoutAlive();
+  virtual void	    SetPickUpAlive();
   virtual void      SetNotAlive();
   virtual void      SetHealthPackAlive();
-  virtual void      SetCloud2Alive();
-  virtual void      SetCloud4Alive();
+  virtual void      SetCloudAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();
 
   virtual bool                      CollidesWith(shared_ptr<SFAsset>);
   virtual shared_ptr<SFBoundingBox> GetBoundingBox();
-
-  int 	PlayerHealth = 100;
 private:
   // it would be nice if we could make this into a smart pointer,
   // but, because we need to call SDL_FreeSurface on it, we can't.
