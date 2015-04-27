@@ -22,7 +22,7 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/debris.png");
     break;
   case SFASSET_CLOUD2:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud2.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud4.png");
     break;
   case SFASSET_CLOUD4:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/cloud4.png");
@@ -32,6 +32,9 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
   case SFASSET_HEALTHBAR:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/star.png");
+    break;
+  case SFASSET_GAMEOVER:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/gameover.png");
     break;
   }
 
@@ -231,13 +234,6 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
   return bbox;
 }
 
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::GameOver(){
-	cout <<"It seems you have died";
-		std::exit;
-}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////

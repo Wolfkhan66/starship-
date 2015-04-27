@@ -27,14 +27,20 @@ public:
   void    OnUpdateWorld();
   void    OnRender();
   void    FireProjectile();
+  void    GameOver();
+  void    Pause();
+
 
 private:
   SDL_Surface           * surface;
   bool                    is_running;
+  bool 			  is_paused;
+  bool 			  restart;
 
   shared_ptr<SFWindow>       sf_window;
 
   shared_ptr<SFAsset>        player;
+  shared_ptr<SFAsset>        gameover;
   shared_ptr<SFBoundingBox>  app_box;
 
   list<shared_ptr<SFAsset> > projectiles;
@@ -48,6 +54,7 @@ private:
 
 
   int fire;
+  int fireN = 3;
   int PlayerHP = 100;
   int Points = 0;
   int HealthPackSeed = 0 ;

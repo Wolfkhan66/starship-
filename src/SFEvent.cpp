@@ -33,6 +33,12 @@ break;
  case SDLK_q:
  code = SFEVENT_QUIT;
  break;
+ case SDLK_p:
+ code = SFEVENT_PAUSE;
+ break;
+ case SDLK_r:
+ code = SFEVENT_RESTART;
+ break;
  }
 break;
 

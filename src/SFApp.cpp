@@ -3,14 +3,20 @@
 
 
 
-	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0),	is_running(true), sf_window(window) {
+
+	SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0),Points(0),	is_running(true),is_paused(false), sf_window(window) {
   	int canvas_w, canvas_h;
   		SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
 
   app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), 	canvas_w, canvas_h);
+
   	player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
   		auto player_pos = Point2(canvas_w/2, 88.0f);
   			player->SetPosition(player_pos);
+
+  	gameover  = make_shared<SFAsset>(SFASSET_GAMEOVER, sf_window);
+  		auto go_pos = Point2(0,0);
+  			gameover->SetPosition(go_pos);
 
 		// spawn aliens
 	const int number_of_aliens = 7;
@@ -38,27 +44,7 @@
 					coin->SetPosition(pos);
 					coins.push_back(coin);
 		}
-	
 
-	
-	//spawn cloud2
-	const int number_of_clouds2 = 3;
-		for(int i=0; i<number_of_coins; i++) {
-			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD2, sf_window);
-			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
-					cloud2->SetPosition(c2pos);
-					clouds2.push_back(cloud2);
-	}
-
-	//spawn cloud4
-	const int number_of_clouds4 = 3;
-		for(int i=0; i<number_of_coins; i++) {
-			auto cloud4 = make_shared<SFAsset>(SFASSET_CLOUD4, sf_window);
-			auto c4pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
-					cloud4->SetPosition(c4pos);
-					clouds4.push_back(cloud4);
-
-	}
 
 	//Spawn healthpack
 		const int number_of_healthpacks = 1;
@@ -68,6 +54,26 @@
 					healthpack->SetPosition(hp_pos);
 					healthpacks.push_back(healthpack);
 					}
+
+	//spawn cloud2
+	const int number_of_clouds2 = 3;
+		for(int i=0; i<number_of_clouds2; i++) {
+			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD2, sf_window);
+			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud2->SetPosition(c2pos);
+					clouds2.push_back(cloud2);
+	}
+
+	//spawn cloud4
+	const int number_of_clouds4 = 3;
+		for(int i=0; i<number_of_clouds4; i++) {
+			auto cloud4 = make_shared<SFAsset>(SFASSET_CLOUD4, sf_window);
+			auto c4pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud4->SetPosition(c4pos);
+					clouds4.push_back(cloud4);
+
+	}
+
 /*		
 	//Spawn Healthbar
 		const int number_of_healthbars = 10;
@@ -96,18 +102,42 @@ SFApp::~SFApp() {
  * These are timer or keyboard events.
  */
 void SFApp::OnEvent(SFEvent& event) {
-  SFEVENT the_event = event.GetCode();
-  switch (the_event) {
-  	case SFEVENT_QUIT:
-   		 is_running = false;
-    break;
-  	case SFEVENT_UPDATE:
-    		OnUpdateWorld();
-    		OnRender();
-    break;
-		default:
-		break;
-  }
+SFEVENT the_event = event.GetCode();
+
+
+	switch(the_event) {
+		case SFEVENT_UPDATE: {
+			if(!is_paused){
+				OnUpdateWorld();
+			}
+				OnRender();
+			break;
+		}
+		case SFEVENT_QUIT: {
+			is_running = false;
+			restart = false;
+			break;
+		}
+		case SFEVENT_PAUSE:{
+			Pause();
+			break;
+		}
+		case SFEVENT_RESTART:{
+
+			break;
+		}
+ 		case SFEVENT_FIRE: {
+			if(!is_paused){
+				if(fire < fireN){
+					fire++;
+					FireProjectile();
+				}
+			}
+// Break out of statement.
+			break;
+		}
+			break;
+	}
 }
 
 int SFApp::OnExecute() {
@@ -142,16 +172,19 @@ void SFApp::OnUpdateWorld() {
  	if(keyboardState[SDL_SCANCODE_RIGHT]) {
  		player->GoEast();
  }
-	if(keyboardState[SDL_SCANCODE_SPACE]) {
- 		fire ++;
- 		FireProjectile();
- }
+ 
 
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
 
-// star movement
+//check player health
+if(PlayerHP <= 0){
+player->HandleCollision();
+GameOver();
+}
+
+// cloud movement
 
 	for(auto cd2: clouds2){
 		cd2->CoinM();
@@ -318,8 +351,32 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
   void SFApp::OnRender() {
   SDL_RenderClear(sf_window->getRenderer());
 
+
+
+
+  		//clouds4 generation
+  	for(auto cd4: clouds4) {
+			auto cd4Pos = cd4->GetPosition();
+				if(cd4->IsAlive() && !(cd4Pos.getY() < -30.0f)) 
+					{
+					cd4->OnRender();	}
+				else {
+					int w, h;
+						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
+					auto cd4pos = Point2 (rand() % (40 + 600), 3000);
+						cd4->SetPosition(cd4pos);
+						cd4->SetCloud4Alive();
+				}
+  	}
+
+
   // draw the player
-  	player->OnRender();
+
+	if(player->IsAlive()) {
+			player->OnRender();
+		}
+
+    gameover->OnRender();
 	
 	// draw projectiles
 	 for(auto p: projectiles) {
@@ -404,7 +461,8 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 				}
   	}
   	
-  		//clouds2 generation
+
+ 		//clouds2 generation
   	for(auto cd2: clouds2) {
 			auto cd2Pos = cd2->GetPosition();
 				if(cd2->IsAlive() && !(cd2Pos.getY() < -30.0f)) 
@@ -418,22 +476,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 						cd2->SetCloud2Alive();
 				}
   	}
-
-  		//clouds4 generation
-  	for(auto cd4: clouds4) {
-			auto cd4Pos = cd4->GetPosition();
-				if(cd4->IsAlive() && !(cd4Pos.getY() < -30.0f)) 
-					{
-					cd4->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto cd4pos = Point2 (rand() % (40 + 600), 3000);
-						cd4->SetPosition(cd4pos);
-						cd4->SetCloud4Alive();
-				}
-  	}
-
+ 
   // Switch the off-screen buffer to be on-screen
   SDL_RenderPresent(sf_window->getRenderer());
 
@@ -449,7 +492,27 @@ void SFApp::FireProjectile() {
   projectiles.push_back(pb);
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
+void SFApp::GameOver(){
+	cout <<"You Died!" << endl;
+	cout <<"Your Final Score was: " << Points << endl;
+    		auto go_pos = Point2(320,480);
+  			gameover->SetPosition(go_pos);
+		is_paused=true;
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::Pause(){
+  if(is_paused){
+		is_paused = false;
+	}
+	else{
+		is_paused = true;
+	}
+}
 
 
 
