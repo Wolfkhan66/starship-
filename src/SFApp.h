@@ -5,6 +5,7 @@
 #include <iostream> // Pull in std::cerr, std::endl
 #include <list>     // Pull in list
 #include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -27,9 +28,10 @@ public:
   void    OnUpdateWorld();
   void    OnRender();
   void    FireProjectile();
-  void    Explosion();
   void    GameOver();
   void    Pause();
+  void    stringtest();
+  void    SpawnExplosion(Point2 pos, int explosionN);
   void	  PlayerHealth(int PlayerHP);
   void	  SpawnAlien(int AlienNo);
   void	  SpawnRanger(int RangerNo);
@@ -37,6 +39,7 @@ public:
   void	  SpawnCoin(int CoinNo);
   void	  SpawnHealthPack(int HealthPackNo);
   void	  SpawnPickUp(int PickUpNo);
+  void	  SpawnScore(int Points);
 
 
 private:
@@ -48,9 +51,10 @@ private:
   shared_ptr<SFWindow>       sf_window;
 
   shared_ptr<SFAsset>        player;
-  shared_ptr<SFAsset>        hud;
+  shared_ptr<SFAsset>        hphud;
   shared_ptr<SFAsset>        gameover;
   shared_ptr<SFBoundingBox>  app_box;
+
 
   list<shared_ptr<SFAsset> > projectiles;
   list<shared_ptr<SFAsset> > explosions;
@@ -63,8 +67,9 @@ private:
   list<shared_ptr<SFAsset> > healthbars;
   list<shared_ptr<SFAsset> > clouds;
   list<shared_ptr<SFAsset> > clouds2;
+  list<shared_ptr<SFAsset> > points;
 
-  
+  int lives= 3;  
   int fire = 0;
   int fireN = 1;
   int PlayerHP = 100;
@@ -76,6 +81,7 @@ private:
   int currentSecond = 0;
   int powertime = 0;
   int xtime = 0;
+
   SFError OnInit();
 };
 

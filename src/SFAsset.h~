@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <sstream>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -21,7 +22,7 @@ using namespace std;
  * enum to mark the type of the SFAsset.  If we add more asset types then
  * the subclassing strategy becomes a better option.
  */
-enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_ALIEN, SFASSET_COIN, SFASSET_DEBRIS , SFASSET_ALIENFIRE, SFASSET_WALL, SFASSET_BACKGROUND1, SFASSET_BACKGROUND2};
+enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_EXPLOSION,SFASSET_ALIEN, SFASSET_COIN, SFASSET_RANGER , SFASSET_CLOUD,SFASSET_CLOUD2, SFASSET_HEALTHPACK, SFASSET_HEALTHBARBLUE,SFASSET_HEALTHBARYELLOW,SFASSET_HEALTHBARRED, SFASSET_GAMEOVER, SFASSET_SCOUT, SFASSET_PICKUP, SFASSET_HUD, SFASSET_NUM0, SFASSET_NUM1, SFASSET_NUM2, SFASSET_NUM3, SFASSET_NUM4, SFASSET_NUM5, SFASSET_NUM6, SFASSET_NUM7, SFASSET_NUM8, SFASSET_NUM9};
 
 class SFAsset {
 public:
@@ -33,25 +34,30 @@ public:
   virtual Point2    GetPosition();
   virtual SFAssetId GetId();
   virtual void      OnRender();
+
   virtual void      GoEast();
   virtual void      GoWest();
   virtual void      GoNorth();
   virtual void      GoSouth();
-  virtual void 	    CoinM();
-  virtual void 	    DebrisM();
+  virtual void 	    CollectibleM();
+  virtual void 	    RangerM();
+  virtual void 	    ScoutM();
   virtual void 	    AlienM();
+  virtual void 	    ExplosionM();
+
   virtual void	    SetCoinAlive();
   virtual void	    SetAlienAlive();
-  virtual void	    SetDebrisAlive();
+  virtual void	    SetRangerAlive();
+  virtual void	    SetScoutAlive();
+  virtual void	    SetPickUpAlive();
   virtual void      SetNotAlive();
-  virtual void      GameOver();
+  virtual void      SetHealthPackAlive();
+  virtual void      SetCloudAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();
 
   virtual bool                      CollidesWith(shared_ptr<SFAsset>);
   virtual shared_ptr<SFBoundingBox> GetBoundingBox();
-
-  int 	PlayerHealth = 100;
 private:
   // it would be nice if we could make this into a smart pointer,
   // but, because we need to call SDL_FreeSurface on it, we can't.

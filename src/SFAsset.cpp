@@ -64,8 +64,40 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_HEALTHBARRED:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarred.png");
     break;
-  }
 
+///////////////////////////NumberAssets/////////////////////////
+  case SFASSET_NUM0:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num0.png");
+    break;
+  case SFASSET_NUM1:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num1.png");
+    break;
+  case SFASSET_NUM2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num2.png");
+    break;
+  case SFASSET_NUM3:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num3.png");
+    break;
+  case SFASSET_NUM4:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num4.png");
+    break;
+  case SFASSET_NUM5:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num5.png");
+    break;
+  case SFASSET_NUM6:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num6.png");
+    break;
+  case SFASSET_NUM7:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num7.png");
+    break;
+  case SFASSET_NUM8:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num8.png");
+    break;
+  case SFASSET_NUM9:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num9.png");
+    break;
+
+}
   if(!sprite) {
     cerr << "Could not load asset of type " << type << endl;
     throw SF_ERROR_LOAD_ASSET;
@@ -228,6 +260,21 @@ if(!(c.getY() < -50.0f)) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
+void SFAsset::ExplosionM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
+if(!(c.getY() < -50.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
+}
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFAsset::RangerM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
@@ -331,6 +378,7 @@ void SFAsset::SetCloudAlive() {
   type = SFASSET_CLOUD;
 }
 
+
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
@@ -342,7 +390,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type) {
     SetNotAlive();
   }
 }

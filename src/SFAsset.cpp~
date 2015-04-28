@@ -6,29 +6,98 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   this->id   = ++SFASSETID;
 
   switch (type) {
+
+///////////////////////////player///////////////////////////////
   case SFASSET_PLAYER:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player/player.png");
     break;
   case SFASSET_PROJECTILE:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/projectile.png");
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/player/projectile.png");
     break;
-  case SFASSET_ALIEN:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/alien.png");
-    break;
-  case SFASSET_COIN:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/coin.png");
-    break;
-  case SFASSET_DEBRIS:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/debris.png");
-    break;
-  case SFASSET_ALIENFIRE:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/alienfire.png");
-    break;
-  case SFASSET_WALL:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/wall.png");
-    break;
-  }
 
+///////////////////////////enemies///////////////////////////////
+  case SFASSET_ALIEN:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/alien.png");
+    break;
+  case SFASSET_SCOUT:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/scout.png");
+    break;
+  case SFASSET_RANGER:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/ranger.png");
+    break;
+
+///////////////////////////collectibles///////////////////////////////
+  case SFASSET_COIN:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/coin.png");
+    break;
+  case SFASSET_PICKUP:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/pickup.png");
+    break;
+  case SFASSET_HEALTHPACK:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/collectibles/health.png");
+    break;
+
+///////////////////////////misc///////////////////////////////
+	case SFASSET_CLOUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
+    break;
+  case SFASSET_CLOUD2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
+    break;
+  case SFASSET_EXPLOSION:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/explosion.png");
+    break;
+  case SFASSET_GAMEOVER:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/gameover.png");
+    break;
+
+///////////////////////////healthbar///////////////////////////////
+  case SFASSET_HUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/hud.png");
+    break;
+  case SFASSET_HEALTHBARBLUE:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarblue.png");
+    break;
+  case SFASSET_HEALTHBARYELLOW:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbaryellow.png");
+    break;
+  case SFASSET_HEALTHBARRED:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarred.png");
+    break;
+
+///////////////////////////NumberAssets/////////////////////////
+  case SFASSET_NUM0:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num0.png");
+    break;
+  case SFASSET_NUM1:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num1.png");
+    break;
+  case SFASSET_NUM2:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num2.png");
+    break;
+  case SFASSET_NUM3:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num3.png");
+    break;
+  case SFASSET_NUM4:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num4.png");
+    break;
+  case SFASSET_NUM5:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num5.png");
+    break;
+  case SFASSET_NUM6:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num6.png");
+    break;
+  case SFASSET_NUM7:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num7.png");
+    break;
+  case SFASSET_NUM8:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num8.png");
+    break;
+  case SFASSET_NUM9:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num9.png");
+    break;
+
+}
   if(!sprite) {
     cerr << "Could not load asset of type " << type << endl;
     throw SF_ERROR_LOAD_ASSET;
@@ -115,7 +184,7 @@ void SFAsset::OnRender() {
 void SFAsset::GoWest() {
   if(SFASSET_PLAYER == type) {
  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
- if(!(c.getX()-32.0f < 0)) {
+ if(!(c.getX()-20.0f < 0)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -130,7 +199,7 @@ void SFAsset::GoEast() {
  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
- if(!(c.getX()+32.0f > w)) {
+ if(!(c.getX()+20.0f > w)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -146,7 +215,7 @@ void SFAsset::GoNorth() {
 
 	Vector2 c = *(bbox->centre) + Vector2(0.0f, 4.0f);
 
- if(!(c.getY()-18.0f > h)) {
+ if(!(c.getY()-20.0f > h)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -166,7 +235,7 @@ void SFAsset::GoSouth() {
 if(SFASSET_PLAYER == type) {
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
 
- if(!(c.getY() < 64.0f)) {
+ if(!(c.getY() < 60.0f)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
@@ -177,7 +246,7 @@ if(SFASSET_PLAYER == type) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::CoinM() {
+void SFAsset::CollectibleM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
@@ -191,7 +260,35 @@ if(!(c.getY() < -50.0f)) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::DebrisM() {
+void SFAsset::ExplosionM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
+if(!(c.getY() < -50.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
+}
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::RangerM() {
+int w, h;
+SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -6.0f);
+if(!(c.getY() < -50.0f)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::ScoutM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
@@ -225,13 +322,6 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
   return bbox;
 }
 
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::GameOver(){
-	cout <<"It seems you have died";
-		std::exit;
-}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -250,8 +340,8 @@ void SFAsset::SetCoinAlive() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFAsset::SetDebrisAlive() {
-  type = SFASSET_DEBRIS;
+void SFAsset::SetRangerAlive() {
+  type = SFASSET_RANGER;
 }
 
 //////////////////////////////////////////////
@@ -264,6 +354,34 @@ void SFAsset::SetAlienAlive() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
+void SFAsset::SetHealthPackAlive() {
+  type = SFASSET_HEALTHPACK;
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::SetPickUpAlive() {
+  type = SFASSET_PICKUP;
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::SetScoutAlive() {
+  type = SFASSET_SCOUT;
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFAsset::SetCloudAlive() {
+  type = SFASSET_CLOUD;
+}
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 bool SFAsset::IsAlive() {
   return (SFASSET_DEAD != type);
 }
@@ -272,7 +390,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_DEBRIS == type || SFASSET_ALIENFIRE == type || SFASSET_WALL == type ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type) {
     SetNotAlive();
   }
 }
