@@ -33,7 +33,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-		// spawn aliens
+		// call Spawning functions
 	SpawnAlien(7);
 	SpawnRanger(10);
 	SpawnScout(5);
@@ -162,6 +162,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		player->HandleCollision();
 		GameOver();
 	}
+
 
 // check pickup is active
 	if(currentSecond > powertime + 10){
@@ -736,8 +737,14 @@ void SFApp::GameOver(){
 	cout <<"Your Final Score was: " << Points << endl;
     		auto go_pos = Point2(320,480);
   			gameover->SetPosition(go_pos);
-		is_paused=true;
-		  fire = 0;
+	aliens.clear();
+	scouts.clear();
+	rangers.clear();
+	coins.clear();
+	healthpacks.clear();
+	pickups.clear();
+	is_paused=true;
+	 fire = 0;
    fireN = 1;
    PlayerHP = 100;
    Points = 0;
@@ -748,6 +755,11 @@ void SFApp::GameOver(){
    currentSecond = 0;
    powertime = 0;
    xtime = 0;
+	SpawnAlien(7);
+	SpawnRanger(10);
+	SpawnScout(5);
+	SpawnCoin(3);
+
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
