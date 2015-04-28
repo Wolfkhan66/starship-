@@ -25,6 +25,10 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_RANGER:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/ranger.png");
     break;
+  case SFASSET_ALIENFIRE:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/alienfire.png");
+    break;
+
 
 ///////////////////////////collectibles///////////////////////////////
   case SFASSET_COIN:
@@ -185,19 +189,20 @@ void SFAsset::OnRender() {
 //////////////////////////////////////////////
 
 void SFAsset::GoWest() {
-  if(SFASSET_PLAYER == type) {
+
  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
  if(!(c.getX()-20.0f < 0)) {
  bbox->centre.reset();
  bbox->centre = make_shared<Vector2>(c);
  }
  }
-}
+
+
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFAsset::GoEast() {
-  if(SFASSET_PLAYER == type) {
+
  int w, h;
  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
@@ -207,7 +212,7 @@ void SFAsset::GoEast() {
  bbox->centre = make_shared<Vector2>(c);
  }
  }
-}
+
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
@@ -287,6 +292,37 @@ if(!(c.getY() < -50.0f)) {
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }}
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::AlienFireM() {
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ 	Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
+		if(!(c.getY() < -50.0f)) {
+  		bbox->centre.reset();
+  		bbox->centre = make_shared<Vector2>(c);
+		}	
+}
+
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFAsset::AttackerM() {
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ 	Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
+		if(!(c.getY() <  380)) {
+  		bbox->centre.reset();
+  		bbox->centre = make_shared<Vector2>(c);
+		}	
+}
+
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -393,7 +429,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type || SFASSET_ALIENFIRE == type) {
     SetNotAlive();
   }
 }

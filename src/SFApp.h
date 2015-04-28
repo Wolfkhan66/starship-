@@ -45,6 +45,8 @@ public:
   void    SpawnGameOver(int GONo);
 	void		SpawnCloudsOnTop(int CloudNo);
 	void		SpawnCloudsOnBottom(int CloudNo);
+	void		AlienFire(Point2 pos, int fireN);
+	void		SpawnAttackers(int AttackerID,int AttackerNO);
 
   void    SpawnStartWave(int x);
 	void		SpawnWave2(int x);
@@ -59,6 +61,8 @@ private:
   bool                    is_running;
   bool 			  is_paused;
   bool 			  restart;
+  bool 				attackerdirection;
+	bool				Boss1Dead;
 
   shared_ptr<SFWindow>       sf_window;
 
@@ -67,6 +71,8 @@ private:
   shared_ptr<SFAsset>        scorehud;
   shared_ptr<SFBoundingBox>  app_box;
 
+  list<shared_ptr<SFAsset> > alienfires;
+  list<shared_ptr<SFAsset> > attackers;
 	list<shared_ptr<SFAsset> > interfaces;
   list<shared_ptr<SFAsset> > projectiles;
   list<shared_ptr<SFAsset> > explosions;
@@ -84,15 +90,22 @@ private:
   int lives= 3;  
   int fire = 0;
   int fireN = 1;
+
+	int alienfire = 0;
+	int alienfireN = 1;
   int PlayerHP = 100;
   int Points = 0;
   int HealthPackSeed = 0;
+	int PickUpsCollected= 0;
   int PickUpSeed = 0;
   int EnemiesDead = 0;
+	int CoinsCollected = 0;
   int Timer = 0;
   int currentSecond = 0;
   int powertime = 0;
-  int xtime = 0;
+  int attime = 0;
+  int Wave = 1;
+  int firePower = 1;
 
   SFError OnInit();
 };
