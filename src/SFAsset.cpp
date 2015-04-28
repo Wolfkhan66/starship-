@@ -52,7 +52,7 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
 
 ///////////////////////////healthbar///////////////////////////////
-  case SFASSET_HUD:
+  case SFASSET_HPHUD:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/hud.png");
     break;
   case SFASSET_HEALTHBARBLUE:
@@ -66,6 +66,9 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
 
 ///////////////////////////NumberAssets/////////////////////////
+  case SFASSET_SCOREHUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/scorehud.png");
+    break;
   case SFASSET_NUM0:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num0.png");
     break;

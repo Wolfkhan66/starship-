@@ -30,7 +30,9 @@ public:
   void    FireProjectile();
   void    GameOver();
   void    Pause();
-  void    stringtest();
+  void    GameReset();
+  void    ClearAssets();
+
   void    SpawnExplosion(Point2 pos, int explosionN);
   void	  PlayerHealth(int PlayerHP);
   void	  SpawnAlien(int AlienNo);
@@ -40,6 +42,16 @@ public:
   void	  SpawnHealthPack(int HealthPackNo);
   void	  SpawnPickUp(int PickUpNo);
   void	  SpawnScore(int Points);
+  void    SpawnGameOver(int GONo);
+	void		SpawnCloudsOnTop(int CloudNo);
+	void		SpawnCloudsOnBottom(int CloudNo);
+
+  void    SpawnStartWave(int x);
+	void		SpawnWave2(int x);
+	void		SpawnWave3(int x);
+	void		SpawnWave4(int x);
+	void		SpawnBoss1(int x);
+	void		SpawnBonusWave(int x);
 
 
 private:
@@ -52,10 +64,10 @@ private:
 
   shared_ptr<SFAsset>        player;
   shared_ptr<SFAsset>        hphud;
-  shared_ptr<SFAsset>        gameover;
+  shared_ptr<SFAsset>        scorehud;
   shared_ptr<SFBoundingBox>  app_box;
 
-
+	list<shared_ptr<SFAsset> > interfaces;
   list<shared_ptr<SFAsset> > projectiles;
   list<shared_ptr<SFAsset> > explosions;
   list<shared_ptr<SFAsset> > aliens;

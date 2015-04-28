@@ -12,57 +12,28 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+		// call Spawning functions
+		SpawnStartWave(1);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //	Spawn Player  
 	player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
-  		auto player_pos = Point2(canvas_w/2, 88.0f);
+  		auto player_pos = Point2(320, 88.0f);
   			player->SetPosition(player_pos);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Spawn hud for healthbars
-	hphud  = make_shared<SFAsset>(SFASSET_HUD, sf_window);
-  		auto hud_pos = Point2(60, 480);
-  			hphud->SetPosition(hud_pos);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Spawn Game Over asset  	
-		gameover  = make_shared<SFAsset>(SFASSET_GAMEOVER, sf_window);
-  		auto go_pos = Point2(0,0);
-  			gameover->SetPosition(go_pos);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-		// call Spawning functions
-	SpawnAlien(7);
-	SpawnRanger(10);
-	SpawnScout(5);
-	
-	SpawnCoin(3);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//spawn cloud on top
-	const int number_of_clouds1 = 3;
-		for(int i=0; i<number_of_clouds1; i++) {
-			auto cloud1 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c1pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
-					cloud1->SetPosition(c1pos);
-					clouds.push_back(cloud1);
-	}
+//	Spawn hud for healthbars and score
+	hphud  = make_shared<SFAsset>(SFASSET_HPHUD, sf_window);
+  		auto hphud_pos = Point2(60, 480);
+  			hphud->SetPosition(hphud_pos);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//spawn cloud behind
-	const int number_of_clouds2 = 3;
-		for(int i=0; i<number_of_clouds2; i++) {
-			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
-					cloud2->SetPosition(c2pos);
-					clouds2.push_back(cloud2);
-
-	}
+	scorehud  = make_shared<SFAsset>(SFASSET_SCOREHUD, sf_window);
+  		auto schud_pos = Point2(580, 486);
+  			scorehud->SetPosition(schud_pos);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +233,6 @@ for(auto ex:explosions){
 // Check player collision with coin
 		if(player->CollidesWith(c)) {
 			Points = Points + 100;
-		SpawnScore(Points);
 			HealthPackSeed = HealthPackSeed + 100;
 				c->HandleCollision();
 					cout << "Collected coin!" << endl;
@@ -349,7 +319,6 @@ for(auto ex:explosions){
 				auto aPos = a->GetPosition();
 			if(p->CollidesWith(a)) {
 				Points = Points + 5;
-					SpawnScore(Points);
 				HealthPackSeed = HealthPackSeed + 5;
 				PickUpSeed = PickUpSeed + 5;
 					p->HandleCollision();
@@ -371,7 +340,6 @@ for(auto ex:explosions){
 				auto rPos = r->GetPosition();
 			if(p->CollidesWith(r)) {
 				Points = Points + 2;
-				SpawnScore(Points);
 				HealthPackSeed = HealthPackSeed + 2;
 				PickUpSeed = PickUpSeed + 2;
 					p->HandleCollision();
@@ -393,7 +361,6 @@ for(auto ex:explosions){
 				auto sPos = s->GetPosition();
 			if(p->CollidesWith(s)) {
 				Points = Points + 1;
-				SpawnScore(Points);
 				HealthPackSeed = HealthPackSeed + 1;
 				PickUpSeed = PickUpSeed + 1;
 					p->HandleCollision();
@@ -515,9 +482,11 @@ currentSecond = Timer / 60;
   PlayerHealth(PlayerHP);
 
 
-	//list<shared_ptr<SFAsset>> scTemp;
-	//points.clear();
-	//points = list<shared_ptr<SFAsset>>(scTemp);
+	list<shared_ptr<SFAsset>> scTemp;
+	points.clear();
+	points = list<shared_ptr<SFAsset>>(scTemp);
+	SpawnScore(Points);
+	
 } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -557,8 +526,6 @@ currentSecond = Timer / 60;
 	if(player->IsAlive()) {
 			player->OnRender();
 		}
-	
-    gameover->OnRender();
 	
 	// draw projectiles
 	 for(auto p: projectiles) {
@@ -642,20 +609,26 @@ currentSecond = Timer / 60;
  
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Healthbars  // render last so they are always on top
-		for (auto hb : healthbars){
-			hb->OnRender();
-		}
+	// Healthbars ,points and huds // spawn last so they are always on top
+	
+	for (auto hb : healthbars){
+		hb->OnRender();
+	}
+		
+	//	render the hphud after the healthbars so that the aestheic overlays the hpbars
+		hphud->OnRender();
 
-// points
+	// this time render the score hud before the number assets so that they appear on top of the hud
+		scorehud->OnRender();
+
 	for(auto po : points){
 		po->OnRender();
 	}
-// hphud 
-	hphud->OnRender();
 
 
-/// render number assets
+	for(auto gameover :interfaces){
+    gameover->OnRender();
+	}
 
 
   // Switch the off-screen buffer to be on-screen
@@ -777,6 +750,40 @@ void SFApp::SpawnExplosion(Point2 pos, int explosionN){
 				explosions.push_back(explode);
 	}
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void SFApp::SpawnCloudsOnTop(int CloudNo){
+		for(int i=0; i<CloudNo; i++) {
+			auto cloud1 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
+			auto c1pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud1->SetPosition(c1pos);
+					clouds.push_back(cloud1);
+		}
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void SFApp::SpawnCloudsOnBottom(int CloudNo){
+		for(int i=0; i<CloudNo; i++) {
+			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
+			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+					cloud2->SetPosition(c2pos);
+					clouds2.push_back(cloud2);
+		}
+	}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Spawn Game Over asset  
+void SFApp::SpawnGameOver(int GONo){	
+	for(int i=0; i< GONo; i++){
+	auto gameover = make_shared<SFAsset>(SFASSET_GAMEOVER, sf_window);
+    		auto go_pos = Point2(320,480);
+  			gameover->SetPosition(go_pos);
+			interfaces.push_back(gameover);
+	}
+}
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 void SFApp::FireProjectile() {
@@ -790,18 +797,72 @@ void SFApp::FireProjectile() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFApp::GameOver(){
-	cout <<"You Died!" << endl;
-	cout <<"Your Final Score was: " << Points << endl;
-    		auto go_pos = Point2(320,480);
-  			gameover->SetPosition(go_pos);
+void SFApp::ClearAssets(){
 	aliens.clear();
 	scouts.clear();
 	rangers.clear();
 	coins.clear();
 	healthpacks.clear();
 	pickups.clear();
-	is_paused=true;
+	clouds.clear();
+}
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::SpawnStartWave(int x){
+	for(int i=0; i< x; i++){
+	SpawnAlien(2);
+	SpawnRanger(10);
+	SpawnScout(2);
+	SpawnCoin(2);
+	SpawnCloudsOnTop(1);
+	SpawnCloudsOnBottom(1);
+	}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnWave2(int x){
+	SpawnAlien(2);
+	SpawnRanger(2);
+	SpawnScout(20);
+	SpawnCoin(2);
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::SpawnWave3(int x){
+	SpawnAlien(10);
+	SpawnRanger(10);
+	SpawnScout(10);
+	SpawnCoin(3);
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::SpawnWave4(int x){
+	SpawnAlien(20);
+	SpawnRanger(10);
+	SpawnScout(5);
+	SpawnCoin(3);
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::SpawnBoss1(int x){
+
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::SpawnBonusWave(int x){
+	SpawnCoin(10);
+	SpawnHealthPack(3);
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::GameReset(){
 	 fire = 0;
    fireN = 1;
    PlayerHP = 100;
@@ -813,12 +874,17 @@ void SFApp::GameOver(){
    currentSecond = 0;
    powertime = 0;
    xtime = 0;
-	SpawnAlien(7);
-	SpawnRanger(10);
-	SpawnScout(5);
-	SpawnCoin(3);
-	gameover->HandleCollision();
 
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
+void SFApp::GameOver(){
+	SpawnGameOver(1);
+	cout <<"You Died!" << endl;
+	cout <<"Your Final Score was: " << Points << endl;
+	ClearAssets();
+	is_paused=true;
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -832,6 +898,10 @@ void SFApp::Pause(){
 	}
 
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 void SFApp::SpawnScore(int Points)
 {
 string ScoreString;
@@ -841,80 +911,68 @@ ScoreString = ScoreConvert.str();
 
 
 for(int i = 0; i < ScoreString.size(); i++){
- 	cout << 	ScoreString[i] << endl;
-	if(ScoreString[i] == 0) {
+	if(ScoreString[i] == '0') {
 			auto zero = make_shared<SFAsset>(SFASSET_NUM0, sf_window);
-			auto pos = Point2(400+ (i*5), 300);
+			auto pos = Point2(575+ (i*6), 470);
 			zero->SetPosition(pos);
 			points.push_back(zero);
- 			cout << 	"Spawn 0" << endl;
 		}
-	if(ScoreString[i] == 1){
+	if(ScoreString[i] == '1'){
 				auto one = make_shared<SFAsset>(SFASSET_NUM1, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				one->SetPosition(pos);
 				points.push_back(one);
-	cout << 	"Spawn 1" << endl;
 	}
-	if(ScoreString[i] == 2){
+	if(ScoreString[i] == '2'){
 				auto two = make_shared<SFAsset>(SFASSET_NUM2, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				two->SetPosition(pos);
 				points.push_back(two);
-	cout << 	"Spawn 2" << endl;
 	}
-	if(ScoreString[i] == 3){
+	if(ScoreString[i] == '3'){
 				auto three = make_shared<SFAsset>(SFASSET_NUM3, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				three->SetPosition(pos);
 				points.push_back(three);
-	cout << 	"Spawn 3" << endl;
 	}
-	if(ScoreString[i] == 4){
+	if(ScoreString[i] == '4'){
 				auto four = make_shared<SFAsset>(SFASSET_NUM4, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				four->SetPosition(pos);
 				points.push_back(four);
-	cout << 	"Spawn 4" << endl;
 	}
-	if(ScoreString[i] == 5){
+	if(ScoreString[i] == '5'){
 				auto five = make_shared<SFAsset>(SFASSET_NUM5, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				five->SetPosition(pos);
 				points.push_back(five);
-	cout << 	"Spawn 5" << endl;
 	}
-	 if(ScoreString[i] == 6){
+	 if(ScoreString[i] == '6'){
 				auto six = make_shared<SFAsset>(SFASSET_NUM6, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				six->SetPosition(pos);
 				points.push_back(six);
-	cout << 	"Spawn 6" << endl;
 	}
-	if(ScoreString[i] == 7){
+	if(ScoreString[i] == '7'){
 				auto seven = make_shared<SFAsset>(SFASSET_NUM7, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				seven->SetPosition(pos);
 				points.push_back(seven);
-	cout << 	"Spawn 7" << endl;
 	}
-	if(ScoreString[i] == 8){
+	if(ScoreString[i] == '8'){
 				auto eight = make_shared<SFAsset>(SFASSET_NUM8, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				eight->SetPosition(pos);
 				points.push_back(eight);
-	cout << 	"Spawn 8" << endl;
 	}
-	if (ScoreString[i] == 9){
+	if (ScoreString[i] == '9'){
 				auto nine = make_shared<SFAsset>(SFASSET_NUM9, sf_window);
-				auto pos = Point2(400 + (i*5),300);
+				auto pos = Point2(575 + (i*6),470);
 				nine->SetPosition(pos);
 				points.push_back(nine);
-	cout << 	"Spawn 9" << endl;
 	}
 
 }
-cout << "left statement" << endl;
 }
 
 
