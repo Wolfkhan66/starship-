@@ -167,6 +167,9 @@ if(PlayerHP <= 0){
 		SpawnPickUp(1);
 	}
 
+	
+
+
 /// Wave Generation /////////////
 	 if(Wave == 1  && EnemiesDead == 25){
 	   	ClearAssets(1);
@@ -202,7 +205,7 @@ if(PlayerHP <= 0){
 			 	cout<< "WAVE 4 INCOMING" << endl;
 			
 	}
-	if(Wave == 5 && EnemiesDead == 60 && Points > 10000){
+	if(Wave == 5 && EnemiesDead == 60 && Points >= 10000){
 		ClearAssets(1);
 		SpawnBoss1(1);
 		Wave++;
@@ -210,6 +213,7 @@ if(PlayerHP <= 0){
 			SpawnHealthPack(2);
 	}
 	if(Wave == 6 && Boss1Dead == true){
+		Boss1Dead = false;
 		ClearAssets(1);	
     SpawnBonusWave(2);
 		Wave++;
@@ -267,6 +271,9 @@ for(auto ex:explosions){
 		else if(hpPos.getY() < -30.0f){
 			hp->HandleCollision();
 				SpawnHealthPack(1);
+	}
+	if(PlayerHP > 100){
+		PlayerHP = 100;
 	}
 
 }
@@ -349,6 +356,49 @@ for(auto ex:explosions){
 	  }
 	}
 */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// handle boss movement and events
+
+	for(auto boss: bosses){
+		boss->BossM();
+	}
+
+		
+	for(auto af : alienfires){
+			af->AlienFireM();
+			auto afPos= af->GetPosition();
+		if(player->CollidesWith(af)){
+			PlayerHP = PlayerHP -5;
+			af->HandleCollision();
+		}
+		else if( afPos.getY() <-30.0f){
+			af->HandleCollision();
+			AlienFire(1);
+		}
+}
+
+
+for( auto boss: bosses){
+	for(auto p : projectiles){
+				auto bossPos = boss->GetPosition();
+				auto pPos = p->GetPosition();
+			if(p->CollidesWith(boss)) {
+			  BossHP = BossHP - 1;
+				p->HandleCollision();
+				SpawnExplosion(pPos,1);
+				HealthPackSeed = HealthPackSeed +  20;
+				PickUpSeed = PickUpSeed + 2;
+			}
+			if(BossHP <= 0){
+				boss->HandleCollision();
+				Points = Points + 1000;
+				BossHP = 500;
+				Boss1Dead = true;
+			}	
+	}
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Update alien positions
@@ -588,6 +638,18 @@ for(auto ex:explosions){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Remove remove dead bosses
+	list<shared_ptr<SFAsset>> bossTemp;
+		for(auto boss : bosses) {
+			if(boss->IsAlive()) {
+				bossTemp.push_back(boss);
+			}
+		}
+			bosses.clear();
+			bosses = list<shared_ptr<SFAsset>>(bossTemp);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Remove all dead Pickups
 	list<shared_ptr<SFAsset>> puTemp;
 		for(auto pu : pickups) {
@@ -717,6 +779,15 @@ currentSecond = Timer / 60;
 	 for(auto hp: healthpacks) {
 			hp->OnRender();
 	 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+ // render the big bad boss
+
+	for(auto boss: bosses){
+		boss->OnRender();
+	}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -931,7 +1002,7 @@ void SFApp::SpawnExplosion(Point2 pos, int explosionN){
 void SFApp::SpawnCloudsOnTop(int CloudNo){
 		for(int i=0; i<CloudNo; i++) {
 			auto cloud1 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c1pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+			auto c1pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
 					cloud1->SetPosition(c1pos);
 					clouds.push_back(cloud1);
 		}
@@ -942,7 +1013,7 @@ void SFApp::SpawnCloudsOnTop(int CloudNo){
 void SFApp::SpawnCloudsOnBottom(int CloudNo){
 		for(int i=0; i<CloudNo; i++) {
 			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c2pos = Point2 (rand() %(40 + 600), rand() %(600+3000));
+			auto c2pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
 					cloud2->SetPosition(c2pos);
 					clouds2.push_back(cloud2);
 		}
@@ -960,10 +1031,11 @@ void SFApp::SpawnGameOver(int GONo){
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-void SFApp::AlienFire(Point2 pos, int fireN){
+void SFApp::AlienFire(int fireN){
 	for (int i = 0; i < fireN; i++){
 		auto AT = make_shared<SFAsset>(SFASSET_ALIENFIRE, sf_window);
-				AT->SetPosition(pos);
+		auto ATPos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+				AT->SetPosition(ATPos);
 				alienfires.push_back(AT);
 	}
 }
@@ -1041,14 +1113,20 @@ void SFApp::SpawnWave4(int x){
 //////////////////////////////////////////////
 
 void SFApp::SpawnBoss1(int x){
-
+		for(int i=0; i< x; i++){
+			auto boss = make_shared<SFAsset>(SFASSET_BOSS, sf_window);
+			auto bosspos = Point2 (320, rand() %(600+3000));
+					boss->SetPosition(bosspos);
+					bosses.push_back(boss);
+	}
+	  AlienFire(50);
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFApp::SpawnBonusWave(int x){
 	for(int i=0; i< x; i++){
-		SpawnCoin(15);
+		SpawnCoin(30);
 		SpawnHealthPack(4);
 	}
 }

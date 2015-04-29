@@ -28,6 +28,9 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_ALIENFIRE:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/alienfire.png");
     break;
+  case SFASSET_BOSS:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/enemies/boss.png");
+    break;
 
 
 ///////////////////////////collectibles///////////////////////////////
@@ -325,7 +328,19 @@ void SFAsset::AttackerM() {
   		bbox->centre = make_shared<Vector2>(c);
 		}	
 }
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
+void SFAsset::BossM() {
+	int w, h;
+	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+ 	Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
+		if(!(c.getY() <  545)) {
+  		bbox->centre.reset();
+  		bbox->centre = make_shared<Vector2>(c);
+		}	
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -432,7 +447,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type || SFASSET_ALIENFIRE == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type || SFASSET_ALIENFIRE == type || SFASSET_BOSS == type  ) {
     SetNotAlive();
   }
 }
