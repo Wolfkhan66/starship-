@@ -44,6 +44,7 @@ public:
   void	  SpawnPickUp(int PickUpNo);
   void	  SpawnLives(int lifeNo);
   void	  SpawnScore(int Points);
+  void	  SpawnPower(int fireN);
   void    SpawnGameOver(int GONo);
 	void		SpawnCloudsOnTop(int CloudNo);
 	void		SpawnCloudsOnBottom(int CloudNo);
@@ -60,18 +61,18 @@ public:
 
 private:
   SDL_Surface           * surface;
-  bool                    is_running;
-  bool 			  is_paused;
-  bool 			  restart;
-  bool 				attackerdirection;
-	bool				Boss1Dead;
-	bool				GameEnded;
+  bool  is_running;
+  bool	is_paused;
+  bool 	restart;
+  bool 	attackerdirection;
+	bool	Boss1Dead;
+	bool	GameEnded;
 
   shared_ptr<SFWindow>       sf_window;
 
   shared_ptr<SFAsset>        player;
-  shared_ptr<SFAsset>        hphud;
-  shared_ptr<SFAsset>        scorehud;
+  shared_ptr<SFAsset>        hud;
+
   shared_ptr<SFBoundingBox>  app_box;
 
   list<shared_ptr<SFAsset> > alienfires;
@@ -91,6 +92,7 @@ private:
   list<shared_ptr<SFAsset> > points;
   list<shared_ptr<SFAsset> > lives;
   list<shared_ptr<SFAsset> > bosses;
+  list<shared_ptr<SFAsset> > pows;
 
   int numberOfLives = 3;
   int fire = 0;
@@ -102,7 +104,6 @@ private:
   int EnemiesDead = 0;
 	int CoinsCollected = 0;
 
-	int BossHP = 250;
   int alienfire = 0;
 	int alienfireN = 1;
 
@@ -115,6 +116,7 @@ private:
   int currentSecond = 0;
   int powertime = 0;
   int attime = 0;
+	int currentex = 0;
 
 
   SFError OnInit();

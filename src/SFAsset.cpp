@@ -45,10 +45,10 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
 
 ///////////////////////////misc///////////////////////////////
-	case SFASSET_CLOUD:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
+  case SFASSET_HUD:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/hud.png");
     break;
-  case SFASSET_CLOUD2:
+	case SFASSET_CLOUD:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/cloud.png");
     break;
   case SFASSET_EXPLOSION:
@@ -57,11 +57,11 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_GAMEOVER:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/gameover.png");
     break;
+  case SFASSET_POW:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/misc/power.png");
+    break;
 
 ///////////////////////////healthbar///////////////////////////////
-  case SFASSET_HPHUD:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/hud.png");
-    break;
   case SFASSET_LIFE:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/lives.png");
     break;
@@ -76,9 +76,6 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
     break;
 
 ///////////////////////////NumberAssets/////////////////////////
-  case SFASSET_SCOREHUD:
-    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/scorehud.png");
-    break;
   case SFASSET_NUM0:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/numbers/num0.png");
     break;
@@ -191,19 +188,19 @@ void SFAsset::OnRender() {
   SDL_RenderCopy(sf_window->getRenderer(), sprite, NULL, &rect);
 }
 
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//************************************* Handle Asset Movement****************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SFAsset::GoWest() {
-
  Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
- if(!(c.getX()-20.0f < 0)) {
- bbox->centre.reset();
- bbox->centre = make_shared<Vector2>(c);
+ 	if(!(c.getX()-25.0f < 0)) {
+ 		bbox->centre.reset();
+ 		bbox->centre = make_shared<Vector2>(c);
+ 	}
  }
- }
-
-
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
@@ -213,9 +210,9 @@ void SFAsset::GoEast() {
  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
- if(!(c.getX()+20.0f > w)) {
- bbox->centre.reset();
- bbox->centre = make_shared<Vector2>(c);
+ 	if(!(c.getX()+25.0f > w)) {
+		bbox->centre.reset();
+ 		bbox->centre = make_shared<Vector2>(c);
  }
  }
 
@@ -259,65 +256,48 @@ if(SFASSET_PLAYER == type) {
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// handle movement for the Collectibles asset
 void SFAsset::CollectibleM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
-if(!(c.getY() < -50.0f)) {
+
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-}
+
 }
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// handle movement for the Explosions asset
 void SFAsset::ExplosionM() {
 int w, h;
 SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
  Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
-if(!(c.getY() < -50.0f)) {
+
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
+
 }
-}
 
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
-void SFAsset::RangerM() {
-int w, h;
-SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
-
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -6.0f);
-if(!(c.getY() < -50.0f)) {
-  bbox->centre.reset();
-  bbox->centre = make_shared<Vector2>(c);
-}}
-
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
+// handle movement for the AlienFire asset
 void SFAsset::AlienFireM() {
 	int w, h;
-	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
-
- 	Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
-		if(!(c.getY() < -50.0f)) {
-  		bbox->centre.reset();
-  		bbox->centre = make_shared<Vector2>(c);
-		}	
+		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
+  	bbox->centre.reset();
+  	bbox->centre = make_shared<Vector2>(c);		
 }
 
 
 //////////////////////////////////////////////
-//////////////////////////////////////////////
-
+/////////////***Work in Progress***///////////
+// handle movement for the Attacker asset
 void SFAsset::AttackerM() {
 	int w, h;
 	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
@@ -330,43 +310,48 @@ void SFAsset::AttackerM() {
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// handle movement for the Boss asset
 void SFAsset::BossM() {
 	int w, h;
-	SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
-
- 	Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
+		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
 		if(!(c.getY() <  545)) {
   		bbox->centre.reset();
   		bbox->centre = make_shared<Vector2>(c);
 		}	
 }
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+// handle movement for the Ranger asset
+void SFAsset::RangerM() {
+	int w, h;
+		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// handle movement for the Scout asset
 void SFAsset::ScoutM() {
-int w, h;
-SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
-
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -7.0f);
-if(!(c.getY() < -50.0f)) {
+	int w, h;
+		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -6.0f);
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-}}
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// handle movement for the Alien asset
 void SFAsset::AlienM() {
-int w, h;
-SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
-
- Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
-if(!(c.getY() < -50.0f)) {
+	int w, h;
+		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
-}}
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -379,6 +364,16 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
   return bbox;
 }
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+// set and return the health for assets
+int SFAsset::GetHealth() {
+return this->AssetHealth;
+}
+
+void SFAsset::SetHealth(int health) {
+AssetHealth = health;
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -386,55 +381,6 @@ shared_ptr<SFBoundingBox> SFAsset::GetBoundingBox() {
 void SFAsset::SetNotAlive() {
   type = SFASSET_DEAD;
 }
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetCoinAlive() {
-  type = SFASSET_COIN;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetRangerAlive() {
-  type = SFASSET_RANGER;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetAlienAlive() {
-  type = SFASSET_ALIEN;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetHealthPackAlive() {
-  type = SFASSET_HEALTHPACK;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetPickUpAlive() {
-  type = SFASSET_PICKUP;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFAsset::SetScoutAlive() {
-  type = SFASSET_SCOUT;
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-void SFAsset::SetCloudAlive() {
-  type = SFASSET_CLOUD;
-}
-
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -447,7 +393,7 @@ bool SFAsset::IsAlive() {
 //////////////////////////////////////////////
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type || SFASSET_ALIENFIRE == type || SFASSET_BOSS == type  ) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type || SFASSET_RANGER == type || SFASSET_HEALTHPACK == type|| SFASSET_SCOUT == type|| SFASSET_PICKUP == type || SFASSET_EXPLOSION == type|| SFASSET_GAMEOVER == type || SFASSET_PLAYER == type || SFASSET_ALIENFIRE == type || SFASSET_BOSS == type || SFASSET_CLOUD == type ) {
     SetNotAlive();
   }
 }

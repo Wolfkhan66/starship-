@@ -5,17 +5,14 @@
 
 
 	SFApp::SFApp(std::shared_ptr<SFWindow> window) :GameEnded(false),	is_running(true),is_paused(false),Boss1Dead(false), sf_window(window) {
-  	int canvas_w, canvas_h;
-  		SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
-
+  int canvas_w, canvas_h;
+  SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
   app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), 	canvas_w, canvas_h);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-		// call Spawning functions
+// 
 		SpawnStartWave(1);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //	Spawn Player  
 	player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
@@ -26,14 +23,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//	Spawn hud for healthbars and score
-	hphud  = make_shared<SFAsset>(SFASSET_HPHUD, sf_window);
-  		auto hphud_pos = Point2(60, 491);
-  			hphud->SetPosition(hphud_pos);
+//	Spawn the GUI
+	hud  = make_shared<SFAsset>(SFASSET_HUD, sf_window);
+  		auto hud_pos = Point2(320, 720);
+  			hud->SetPosition(hud_pos);	
 
-	scorehud  = make_shared<SFAsset>(SFASSET_SCOREHUD, sf_window);
-  		auto schud_pos = Point2(580, 486);
-  			scorehud->SetPosition(schud_pos);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +93,11 @@ int SFApp::OnExecute() {
 
 void SFApp::OnUpdateWorld() {
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//*************************************Handle Player Movement****************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
  const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
  	if(keyboardState[SDL_SCANCODE_DOWN]) {
@@ -127,13 +126,19 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//Check Events
+//************************************* Check Events ************************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
  
-
+// if the player has run out of lives - call the gameover function
 if(numberOfLives == 0){
 		GameOver(1);
 	}
 
+// the player hits 0 health
+// sleep the game temporarily ( not sure this is the best way )
+// remove a life and remove the players asset
+// spawn a new player and remove some points as a penalty
 if(PlayerHP <= 0){
 		PlayerHP = 100;
 		numberOfLives = numberOfLives - 1;
@@ -145,32 +150,41 @@ if(PlayerHP <= 0){
 		Points = Points - 500;
 	}
 
-// check pickup is active
+// when a player collects a pick up power time is set to the current second
+// when 10 seconds have gone by the players fire rate is set back to normal
 	if(currentSecond > powertime + 10){
 		fireN = firePower;
 	}
 
-	if(PickUpsCollected == 3){
+// if the player collects enough pickups increase the players firepower
+// if not already at maximum
+	if(PickUpsCollected == 2 && fireN < 20){
 		firePower++;
 		PickUpsCollected = 0;
 	}
 
-// check healthpack spawn
+// as the player collects points the healthpack seed is increased
+// when the seed reaches a certain amount a healthpack is spawned
+// the seed is then set back to 0
 	if(HealthPackSeed >= 1000){
 			HealthPackSeed = HealthPackSeed - 1000;
 			SpawnHealthPack(1);
 	}
 
-//check pickup spawn
+// as the player collects points the pick seed is increased
+// when the seed reaches a certain amount a pickup is spawned
+// the seed is then set back to 0
+
 	if(PickUpSeed >= 500){
 		PickUpSeed = PickUpSeed - 500;
 		SpawnPickUp(1);
 	}
 
-	
-
-
-/// Wave Generation /////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//*************************************Handle Wave Generation****************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 	 if(Wave == 1  && EnemiesDead == 25){
 	   	ClearAssets(1);
 		 	SpawnWave2(1);
@@ -184,8 +198,8 @@ if(PlayerHP <= 0){
 	 	 SpawnWave3(1);
 	   EnemiesDead = 0;
 	   Wave++;
-					 	cout<< "WAVE 3 INCOMING" << endl;
-			SpawnHealthPack(1);
+		 cout<< "WAVE 3 INCOMING" << endl;
+		 SpawnHealthPack(1);
 	 }
 	 if(Wave == 3 && Points > 4000){
 	   ClearAssets(1);
@@ -196,16 +210,14 @@ if(PlayerHP <= 0){
 				 	cout<< "BONUS WAVE INCOMING" << endl;
    }
 	 if(Wave == 4 && CoinsCollected == 10){
-	   ClearAssets(1);
-			coins.clear();
-			healthpacks.clear();
-		 SpawnWave4(1);
-		 EnemiesDead = 0;
 		 Wave++;
+	   ClearAssets(1);
+		 healthpacks.clear();
+		 EnemiesDead = 0;
+		 SpawnWave4(1);
 			 	cout<< "WAVE 4 INCOMING" << endl;
-			
 	}
-	if(Wave == 5 && EnemiesDead == 60 && Points >= 10000){
+	if(Wave == 5 && EnemiesDead == 60 && Points >= 5000){
 		ClearAssets(1);
 		SpawnBoss1(1);
 		Wave++;
@@ -230,22 +242,44 @@ if(PlayerHP <= 0){
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// cloud movement
+//*************************************Handle Misc Assets********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+// cloud movement 
+// if a cloud goes off screen - remove asset and spawn a new one
 	for(auto cd1: clouds){
 		cd1->CollectibleM();
+      auto cpos = cd1->GetPosition();		
+	 if(cpos.getY() < -30.0f){
+			cd1->HandleCollision();
+				SpawnCloudsOnTop(1);
 		}
+	}
+
 	for(auto cd2: clouds2){
 		cd2->CollectibleM();
+      auto cpos = cd2->GetPosition();		
+	 if(cpos.getY() < -30.0f){
+			cd2->HandleCollision();
+				SpawnCloudsOnBottom(1);
 		}
+	}
 
-for(auto ex:explosions){
-		ex->ExplosionM();
+// move an explosion asset 
+// if an explosion goes off screen , remove the asset
+  for(auto ex:explosions){
+			auto expos = ex->GetPosition();
+			ex->ExplosionM();
+		 if(expos.getY() < -30.0f){
+			ex->HandleCollision();
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Update projectile positions
+//handle projectile movement
 	for(auto p: projectiles) {
 		p->GoNorth();
 // Remove projectile when it hits the top of the screen
@@ -254,7 +288,9 @@ for(auto ex:explosions){
 			p->HandleCollision();
 		}
 	}
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//*************************************Handle Collectibles*******************************************//
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // healthpack movement
@@ -262,16 +298,17 @@ for(auto ex:explosions){
 		hp->CollectibleM();
 		auto hpPos = hp->GetPosition();
 // check player collision with healthpack
+// if player collects a health pack , gain 25 health and remove the healthpack asset
 		if(player->CollidesWith(hp)) {
 				PlayerHP = PlayerHP + 25;
 				hp->HandleCollision();
-					cout << "Collected Health!" << endl;
-					cout << "HP"<< PlayerHP << endl;
 		}
+// if the health pack goes off screen then remove the asset
 		else if(hpPos.getY() < -30.0f){
 			hp->HandleCollision();
-				SpawnHealthPack(1);
 	}
+
+// if player collects a health pack that makes their health go over 100, set hp to 100.
 	if(PlayerHP > 100){
 		PlayerHP = 100;
 	}
@@ -284,17 +321,17 @@ for(auto ex:explosions){
 		pu->CollectibleM();
 		auto puPos = pu->GetPosition();
 // check player collision with pickup
+// if player collects a pickup - set there maximum projectiles to 20
+// and remove the pick up asset
 		if(player->CollidesWith(pu)) {
 					pu->HandleCollision();
 					powertime = currentSecond;
 	      	fireN = 20;
-						cout << "Collected Pickup!" << endl;
-						cout << "Maximum fire"<< endl;  
 						PickUpsCollected++;   			
 		}	
+// if the pickup goes off screen then remove the asset
 		else if(puPos.getY() < -30.0f){
 			pu->HandleCollision();
-				SpawnPickUp(1);
 		}
 	}
 
@@ -305,24 +342,31 @@ for(auto ex:explosions){
 		c->CollectibleM();
 		auto cPos = c->GetPosition();
 // Check player collision with coin
+// if the player collects a coin gain 100 points and increase the healthpack spawning seed by 100
+// remove the asset and spawn a new one
 		if(player->CollidesWith(c)) {
 			Points = Points + 100;
 			HealthPackSeed = HealthPackSeed + 100;
 				c->HandleCollision();
-					cout << "Collected coin!" << endl;
-					cout << "Score:" << Points << endl;
 						SpawnCoin(1);
 						CoinsCollected++;
 		}
+// if a coin goes off screen , remove the asset and spawn a new one
 		else if(cPos.getY() < -30.0f){
 			c->HandleCollision();
 				SpawnCoin(1);
 		}
 	}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//****************************************WORK IN PROGRESS*******************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//Handle attacker events and movement
+// essentially the idea here is creat a single entity of a current enemy with more health
+// that stops at the top of the screen and starts moving left and right , firing at the player.
+// very close to working however still buggy
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//Handle attacker events and movement******WORK IN PROGRESS****
 /*
 	for(auto AT : attackers){
 			auto atPos= AT->GetPosition();
@@ -359,12 +403,19 @@ for(auto ex:explosions){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// handle boss movement and events
+//***********************Handling Enemy Movement and Player Collision********************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// if an enemy asset collides with the player, remove some of the players health, remove the enemy asset
+// spawn an explosion in its place and a new enemy asset to replace it.
+// if the enemy asset misses the player and goes off screen , remove the asset and spawn a new one
+
+
+// handle boss movement and his firing
 
 	for(auto boss: bosses){
 		boss->BossM();
 	}
-
 		
 	for(auto af : alienfires){
 			af->AlienFireM();
@@ -378,27 +429,6 @@ for(auto ex:explosions){
 			AlienFire(1);
 		}
 }
-
-
-for( auto boss: bosses){
-	for(auto p : projectiles){
-				auto bossPos = boss->GetPosition();
-				auto pPos = p->GetPosition();
-			if(p->CollidesWith(boss)) {
-			  BossHP = BossHP - 1;
-				p->HandleCollision();
-				SpawnExplosion(pPos,1);
-				HealthPackSeed = HealthPackSeed +  20;
-				PickUpSeed = PickUpSeed + 2;
-			}
-			if(BossHP <= 0){
-				boss->HandleCollision();
-				Points = Points + 1000;
-				BossHP = 500;
-				Boss1Dead = true;
-			}	
-	}
-}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Update alien positions
@@ -406,11 +436,9 @@ for( auto boss: bosses){
 		a->AlienM();
 		auto aPos = a->GetPosition();
 // Check player collision with alien
-		if(player->CollidesWith(a) && EnemiesDead < 50) {
+		if(player->CollidesWith(a)) {
 			PlayerHP = PlayerHP - 15;
-			a->HandleCollision();
-				cout << "Hit by alien!" << endl;
-				cout << "HP"<< PlayerHP << endl;			
+			a->HandleCollision();		
 					SpawnAlien(1);
 					SpawnExplosion(aPos,1);
 		}
@@ -450,8 +478,6 @@ for( auto boss: bosses){
 		if(player->CollidesWith(s)) {
 			PlayerHP = PlayerHP - 5;
 			s->HandleCollision();
-				cout << "Hit by scout!" << endl;
-				cout << "HP"<< PlayerHP << endl;
 					SpawnScout(1);
 					SpawnExplosion(sPos,1);
 		}
@@ -463,21 +489,34 @@ for( auto boss: bosses){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//***********************Detecting Projectile Collisions*********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// if a projectil hits an asset, check its health and remove some.
+// if assets health is less than or equal to 0 , remove the asset
+// spawn an explosion in its place and increase the players score.
+
+// then increase the seeds for healthpack and pickup spawning
+// increase the number of dead enemies
+// and spawn a new enemy asset in its place
+
+
 // Detect projectile collision with alien
 	for(auto p : projectiles) {
 		for(auto a : aliens) {
 				auto aPos = a->GetPosition();
 			if(p->CollidesWith(a)) {
-				Points = Points + 15;
-				HealthPackSeed = HealthPackSeed + 15;
-				PickUpSeed = PickUpSeed + 15;
-					p->HandleCollision();
+				a->SetHealth(a->GetHealth()-5);
+				p->HandleCollision();
+				if(a->GetHealth() <= 0){
+					Points = Points + 15;
+					HealthPackSeed = HealthPackSeed + 15;
+					PickUpSeed = PickUpSeed + 15;
 					a->HandleCollision();
-						cout << "Killed an enemy!" << endl;
-						cout << "Score:" << Points << endl;
 							EnemiesDead++;
 							SpawnAlien(1);
 							SpawnExplosion(aPos,1);
+				}
 			}
 		}
 	}
@@ -489,16 +528,18 @@ for( auto boss: bosses){
 		for(auto r: rangers) {
 				auto rPos = r->GetPosition();
 			if(p->CollidesWith(r)) {
-				Points = Points + 10;
-				HealthPackSeed = HealthPackSeed + 10;
-				PickUpSeed = PickUpSeed + 10;
+					r->SetHealth(r->GetHealth()-5);
+					p->HandleCollision();
+				if(r->GetHealth() <= 0){
+					Points = Points + 10;
+					HealthPackSeed = HealthPackSeed + 10;
+					PickUpSeed = PickUpSeed + 10;
 					p->HandleCollision();
 					r->HandleCollision();
-			 			cout << "destroyed ranger!" << endl;
-			 			cout << "Score:" << Points << endl;
 							EnemiesDead++;
 							SpawnRanger(1);
 							SpawnExplosion(rPos,1);
+				}
 			}
 		}
 	}
@@ -510,23 +551,49 @@ for( auto boss: bosses){
 		for(auto s: scouts) {
 				auto sPos = s->GetPosition();
 			if(p->CollidesWith(s)) {
-				Points = Points + 5;
-				HealthPackSeed = HealthPackSeed + 5;
-				PickUpSeed = PickUpSeed + 5;
-					p->HandleCollision();
-					s->HandleCollision();
-			 			cout << "destroyed scout!" << endl;
-			 			cout << "Score:" << Points << endl;
+				s->SetHealth(s->GetHealth()-5);
+				p->HandleCollision();
+					if(s->GetHealth() <= 0){
+						Points = Points + 5;
+						HealthPackSeed = HealthPackSeed + 5;
+						PickUpSeed = PickUpSeed + 5;
+							p->HandleCollision();
+							s->HandleCollision();
 							EnemiesDead++;
 							SpawnScout(1);
 							SpawnExplosion(sPos,1);	
-
+				}
 			}
 		}
 	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// handle dead explosions
+// Detect projectile collision with boss
+	for( auto boss: bosses){
+		for(auto p : projectiles){
+				auto bossPos = boss->GetPosition();
+				auto pPos = p->GetPosition();
+			if(p->CollidesWith(boss)) {
+				boss->SetHealth(boss->GetHealth()-5);
+				p->HandleCollision();
+				SpawnExplosion(pPos,1);
+				HealthPackSeed = HealthPackSeed +  20;
+				PickUpSeed = PickUpSeed + 2;
+			if(boss->GetHealth() <= 0){
+				boss->HandleCollision();
+				Points = Points + 1000;
+				Boss1Dead = true;
+			}	
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//******************************** Removing Dead Assets *********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// remove dead explosions
 	list<shared_ptr<SFAsset>> exTemp;
 		for(auto ex : explosions) {
 			if(ex->IsAlive()) {
@@ -659,8 +726,9 @@ for( auto boss: bosses){
 		}
 			pickups.clear();
 			pickups = list<shared_ptr<SFAsset>>(puTemp);
-
-	// Remove the gameover screen
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Remove interfaces
 	list<shared_ptr<SFAsset>> interTemp;
 		for(auto go : interfaces) {
 			if(go->IsAlive()) {
@@ -669,11 +737,44 @@ for( auto boss: bosses){
 		}
 			interfaces.clear();
 			interfaces = list<shared_ptr<SFAsset>>(interTemp);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Increase Time counter by 1
+	// Remove the clouds
+	list<shared_ptr<SFAsset>> cl1Temp;
+		for(auto cl : clouds) {
+			if(cl->IsAlive()) {
+				cl1Temp.push_back(cl);
+			}
+		}
+			clouds.clear();
+			clouds = list<shared_ptr<SFAsset>>(cl1Temp);
+
+	// Remove the cloud2s
+	list<shared_ptr<SFAsset>> cl2Temp;
+		for(auto cl : clouds2) {
+			if(cl->IsAlive()) {
+				cl2Temp.push_back(cl);
+			}
+		}
+			clouds2.clear();
+			clouds2 = list<shared_ptr<SFAsset>>(cl2Temp);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Increase Time counter every ms
 Timer++;
+// divide by 60 to get seconds
 currentSecond = Timer / 60;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ // these lists are constantly updated and dont have collisions 
+ // so they need to be constantly cleared otherwise they endlessly spawn until 
+ // no more memory is available.
+ // this is just for the user interface
 
 	list<shared_ptr<SFAsset>> hbTemp;
 	healthbars.clear();
@@ -689,12 +790,17 @@ currentSecond = Timer / 60;
 	points.clear();
 	points = list<shared_ptr<SFAsset>>(scTemp);
 	SpawnScore(Points);
+
+	list<shared_ptr<SFAsset>> powTemp;
+	pows.clear();
+	pows = list<shared_ptr<SFAsset>>(powTemp);
+	SpawnPower(fireN);
 	
 } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//***************************************************************************************************//
+//*********************************Rendering Assets**************************************************//
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -705,45 +811,33 @@ currentSecond = Timer / 60;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  		//clouds behind
+  		//render clouds2 ** rendered first so everything else renders on top
   	for(auto cd2: clouds2) {
-			auto cd2Pos = cd2->GetPosition();
-				if(cd2->IsAlive() && !(cd2Pos.getY() < -30.0f)) 
-					{
-					cd2->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto cd2pos = Point2 (rand() % (40 + 600), 2000);
-						cd2->SetPosition(cd2pos);
-						cd2->SetCloudAlive();
-				}
-  	}
-
+					cd2->OnRender();	
+		}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	// render the player
 	if(player->IsAlive()) {
 			player->OnRender();
 		}
 	
-	// draw projectiles
+	// render projectiles
 	 for(auto p: projectiles) {
 		if(p->IsAlive()) {
 			p->OnRender();
 		}
 	}
 
+	// render explosions
 	for(auto ex: explosions){
 			ex->OnRender();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//alien generation
+	// Render enemy assets
   	for(auto a: aliens) {
 					a->OnRender();				
 		}
@@ -764,73 +858,66 @@ currentSecond = Timer / 60;
 			af->OnRender();
 		}
 
+ // render the big bad boss
+	for(auto boss: bosses){
+		boss->OnRender();
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//collectible generation
+	//render coins
   	for(auto c: coins) {
 				c->OnRender();	
   	}
-
+	
+		// render pickups
 	 for(auto pu: pickups) {
 			pu->OnRender();
 	 }
 
+		// render healthpacls
 	 for(auto hp: healthpacks) {
 			hp->OnRender();
 	 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
- // render the big bad boss
-
-	for(auto boss: bosses){
-		boss->OnRender();
-	}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
- 		//clouds on top
+ 		//clouds on top /// rendered after enemies, collectibles and player to appear on top to give illusion of layers
   	for(auto cd1: clouds) {
-			auto cd1Pos = cd1->GetPosition();
-				if(cd1->IsAlive() && !(cd1Pos.getY() < -30.0f)) 
-					{
-					cd1->OnRender();	}
-				else {
-					int w, h;
-						SDL_GetRendererOutputSize(sf_window->getRenderer(),&w,&h);
-					auto cd1pos = Point2 (rand() % (40 + 600), 2000);
-						cd1->SetPosition(cd1pos);
-						cd1->SetCloudAlive();
-				}
-  	}
- 
+					cd1->OnRender();	
+		}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Healthbars ,points and huds // spawn last so they are always on top
 	
+	// render healthbars
 	for (auto hb : healthbars){
 		hb->OnRender();
 	}
 		
-	//	render the hphud after the healthbars so that the aestheic overlays the hpbars
-		hphud->OnRender();
+	//	render the hud after the healthbars so that the aestheic overlays the hpbars
+	//	whilst the other assets overlay the hud
+		hud->OnRender();
 
-	// this time render the score hud before the number assets so that they appear on top of the hud
-		scorehud->OnRender();
 
+	// render the players lives
 		for(auto lf : lives){
 			lf ->OnRender();
 		}
-
+	
+	// render the points
 	for(auto po : points){
 		po->OnRender();
 	}
+	
+	// render players firepower
+	for(auto pow : pows){
+		pow->OnRender();
+	}
 
-
+	// render gameover interface
 	for(auto gameover :interfaces){
     gameover->OnRender();
 	}
@@ -843,11 +930,11 @@ currentSecond = Timer / 60;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//***************************************************************************************************//
+//**********************************Hud Spawning Functions**************** **************************//
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////Render the health bar in the health bar hud
+////Render the health bar 
 void SFApp::PlayerHealth(int PlayerHP){
   
 	//the space for health bars in the hud is 100pixels wide, the health bar assets are 5 pixels wide so
@@ -859,21 +946,21 @@ void SFApp::PlayerHealth(int PlayerHP){
 	//If the players health is above 50 render the blue bars
 		if(PlayerHP >= 50){
 			auto healthbarblue = make_shared<SFAsset>(SFASSET_HEALTHBARBLUE, sf_window);
-			auto pos = Point2(13+ (i*5), 470);
+			auto pos = Point2(15+ (i*5), 472);
 			healthbarblue->SetPosition(pos);
 			healthbars.push_back(healthbarblue);
 		}
 	// if the health is lower than 50 but above 25 , render the yellow bars
 		else if(PlayerHP >= 25){
 			auto healthbaryellow = make_shared<SFAsset>(SFASSET_HEALTHBARYELLOW, sf_window);
-			auto pos = Point2(13+ (i*5), 470);
+			auto pos = Point2(15+ (i*5), 472);
 			healthbaryellow->SetPosition(pos);
 			healthbars.push_back(healthbaryellow);
 		}
 	// if the health is lower than 25 render the red bars
 		else{
 			auto healthbarred= make_shared<SFAsset>(SFASSET_HEALTHBARRED, sf_window);
-			auto pos = Point2(13 + (i*5), 470);
+			auto pos = Point2(15 + (i*5), 472);
 			healthbarred->SetPosition(pos);
 			healthbars.push_back(healthbarred);	
 		}
@@ -882,10 +969,11 @@ void SFApp::PlayerHealth(int PlayerHP){
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
+// spawn an asset for the number of lives
 void SFApp::SpawnLives(int lifeNo){
 	for(int i = 0; i < lifeNo; i++){
 			auto life = make_shared<SFAsset>(SFASSET_LIFE, sf_window);
-			auto pos = Point2(50+ (i*14), 446);
+			auto pos = Point2(55+ (i*14), 448);
 			life->SetPosition(pos);
 			lives.push_back(life);
 	}
@@ -893,18 +981,147 @@ void SFApp::SpawnLives(int lifeNo){
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-void SFApp::SpawnAlien(int AlienNo){
+// spawn an asset for the  firepower
+void SFApp::SpawnPower(int fireN){
+	for(int i = 0; i < fireN; i++){
+			auto pow = make_shared<SFAsset>(SFASSET_POW, sf_window);
+			auto pos = Point2(25 , 35 + (i*6));
+				pow->SetPosition(pos);
+				pows.push_back(pow);
+	}
+}
 
-for(int i = 0; i < AlienNo; i++) {
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+// spawn the score
+void SFApp::SpawnScore(int Points)
+{
+	// take the int for points and convert it into a string
+	string ScoreString;
+	ostringstream ScoreConvert;
+	ScoreConvert << Points;
+	ScoreString = ScoreConvert.str();
+
+	// check each character in the string and spawn the necessary number
+for(int i = 0; i < ScoreString.size(); i++){
+	if(ScoreString[i] == '0') {
+			auto zero = make_shared<SFAsset>(SFASSET_NUM0, sf_window);
+			auto pos = Point2(570+ (i*6), 469);
+			zero->SetPosition(pos);
+			points.push_back(zero);
+		}
+	if(ScoreString[i] == '1'){
+				auto one = make_shared<SFAsset>(SFASSET_NUM1, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				one->SetPosition(pos);
+				points.push_back(one);
+	}
+	if(ScoreString[i] == '2'){
+				auto two = make_shared<SFAsset>(SFASSET_NUM2, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				two->SetPosition(pos);
+				points.push_back(two);
+	}
+	if(ScoreString[i] == '3'){
+				auto three = make_shared<SFAsset>(SFASSET_NUM3, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				three->SetPosition(pos);
+				points.push_back(three);
+	}
+	if(ScoreString[i] == '4'){
+				auto four = make_shared<SFAsset>(SFASSET_NUM4, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				four->SetPosition(pos);
+				points.push_back(four);
+	}
+	if(ScoreString[i] == '5'){
+				auto five = make_shared<SFAsset>(SFASSET_NUM5, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				five->SetPosition(pos);
+				points.push_back(five);
+	}
+	 if(ScoreString[i] == '6'){
+				auto six = make_shared<SFAsset>(SFASSET_NUM6, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				six->SetPosition(pos);
+				points.push_back(six);
+	}
+	if(ScoreString[i] == '7'){
+				auto seven = make_shared<SFAsset>(SFASSET_NUM7, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				seven->SetPosition(pos);
+				points.push_back(seven);
+	}
+	if(ScoreString[i] == '8'){
+				auto eight = make_shared<SFAsset>(SFASSET_NUM8, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				eight->SetPosition(pos);
+				points.push_back(eight);
+	}
+	if (ScoreString[i] == '9'){
+				auto nine = make_shared<SFAsset>(SFASSET_NUM9, sf_window);
+				auto pos = Point2(570+ (i*6), 469);
+				nine->SetPosition(pos);
+				points.push_back(nine);
+	}
+
+}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//*********************************Enemy Spawn Functions*********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Spawn an alien, set its health to 15
+void SFApp::SpawnAlien(int AlienNo){
+	for(int i = 0; i < AlienNo; i++) {
 		auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
 				alien->SetPosition(pos);
 				aliens.push_back(alien);
+				alien->SetHealth(15);
+	}
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Spawn a ranger, set its health to 10
+void SFApp::SpawnRanger(int RangerNo){
+	for(int i = 0; i < RangerNo; i++) {
+		auto ranger = make_shared<SFAsset>(SFASSET_RANGER, sf_window);
+		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
+				ranger->SetPosition(pos);
+				rangers.push_back(ranger);
+				ranger->SetHealth(10);
+	}
 }
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Spawn a scout, set its health to 5
+void SFApp::SpawnScout(int ScoutNo){
+	for(int i = 0; i < ScoutNo; i++) {
+		auto scout = make_shared<SFAsset>(SFASSET_SCOUT, sf_window);
+		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
+				scout->SetPosition(pos);
+				scouts.push_back(scout);
+				scout->SetHealth(5);
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Spawn the boss , set its health to 250 and have 50 alien projectiles coming at the player
+void SFApp::SpawnBoss1(int x){
+		for(int i=0; i< x; i++){
+			auto boss = make_shared<SFAsset>(SFASSET_BOSS, sf_window);
+			auto bosspos = Point2 (320, 2000);
+					boss->SetPosition(bosspos);
+					bosses.push_back(boss);
+					boss->SetHealth(250);
+					AlienFire(50);
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //// This part works but their actual movement is a work in progress
 void SFApp::SpawnAttackers(int AttackerID,int AttackerNO){
@@ -930,64 +1147,67 @@ void SFApp::SpawnAttackers(int AttackerID,int AttackerNO){
 		}
 	}
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//*********************************Collectible Spawning Functions************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-void SFApp::SpawnRanger(int RangerNo){
-
-for(int i = 0; i < RangerNo; i++) {
-		auto ranger = make_shared<SFAsset>(SFASSET_RANGER, sf_window);
-		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
-				ranger->SetPosition(pos);
-				rangers.push_back(ranger);
-}
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-void SFApp::SpawnScout(int ScoutNo){
-
-for(int i = 0; i < ScoutNo; i++) {
-		auto scout = make_shared<SFAsset>(SFASSET_SCOUT, sf_window);
-		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
-				scout->SetPosition(pos);
-				scouts.push_back(scout);
-}
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
 void SFApp::SpawnCoin(int CoinNo){
 
-for(int i = 0; i < CoinNo; i++) {
+	for(int i = 0; i < CoinNo; i++) {
 		auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
 		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
 				coin->SetPosition(pos);
 				coins.push_back(coin);
+	}
 }
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void SFApp::SpawnHealthPack(int HealthPackNo){
 
-for(int i = 0; i < HealthPackNo; i++) {
+	for(int i = 0; i < HealthPackNo; i++) {
 		auto healthpack = make_shared<SFAsset>(SFASSET_HEALTHPACK, sf_window);
 		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
 				healthpack->SetPosition(pos);
 				healthpacks.push_back(healthpack);
+	}
 }
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void SFApp::SpawnPickUp(int PickUpNo){
 
-for(int i = 0; i < PickUpNo; i++) {
+	for(int i = 0; i < PickUpNo; i++) {
 		auto pickup = make_shared<SFAsset>(SFASSET_PICKUP, sf_window);
 		auto pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
 				pickup->SetPosition(pos);
 				pickups.push_back(pickup);
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//********************************* Misc Spawn Functions*********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void SFApp::AlienFire(int fireN){
+	for (int i = 0; i < fireN; i++){
+		auto AT = make_shared<SFAsset>(SFASSET_ALIENFIRE, sf_window);
+		auto ATPos = Point2 (rand() % 600 + 40, rand() % 3000 + 1000);
+				AT->SetPosition(ATPos);
+				alienfires.push_back(AT);
+	}
 }
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void SFApp::FireProjectile() {
+  auto pb = make_shared<SFAsset>(SFASSET_PROJECTILE, sf_window);
+  auto v  = player->GetPosition();
+  	pb->SetPosition(v);
+  	projectiles.push_back(pb);
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void SFApp::SpawnExplosion(Point2 pos, int explosionN){
 	for (int i = 0; i < explosionN; i++){
 		auto explode = make_shared<SFAsset>(SFASSET_EXPLOSION, sf_window);
@@ -995,14 +1215,12 @@ void SFApp::SpawnExplosion(Point2 pos, int explosionN){
 				explosions.push_back(explode);
 	}
 }
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void SFApp::SpawnCloudsOnTop(int CloudNo){
 		for(int i=0; i<CloudNo; i++) {
 			auto cloud1 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c1pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+			auto c1pos = Point2 (rand() % 600 , rand() % 3000 + 2000 );
 					cloud1->SetPosition(c1pos);
 					clouds.push_back(cloud1);
 		}
@@ -1013,58 +1231,16 @@ void SFApp::SpawnCloudsOnTop(int CloudNo){
 void SFApp::SpawnCloudsOnBottom(int CloudNo){
 		for(int i=0; i<CloudNo; i++) {
 			auto cloud2 = make_shared<SFAsset>(SFASSET_CLOUD, sf_window);
-			auto c2pos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
+			auto c2pos = Point2 (rand() % 600 , rand() % 3000 + 2000 );
 					cloud2->SetPosition(c2pos);
 					clouds2.push_back(cloud2);
 		}
 	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Spawn Game Over asset  
-void SFApp::SpawnGameOver(int GONo){	
-	for(int i=0; i< GONo; i++){
-	auto gameover = make_shared<SFAsset>(SFASSET_GAMEOVER, sf_window);
-    		auto go_pos = Point2(320,480);
-  			gameover->SetPosition(go_pos);
-			interfaces.push_back(gameover);
-	}
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-void SFApp::AlienFire(int fireN){
-	for (int i = 0; i < fireN; i++){
-		auto AT = make_shared<SFAsset>(SFASSET_ALIENFIRE, sf_window);
-		auto ATPos = Point2 (rand() % 600 + 40, rand() % 3000 + 600);
-				AT->SetPosition(ATPos);
-				alienfires.push_back(AT);
-	}
-}
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFApp::FireProjectile() {
-  auto pb = make_shared<SFAsset>(SFASSET_PROJECTILE, sf_window);
-  auto v  = player->GetPosition();
-  pb->SetPosition(v);
-  projectiles.push_back(pb);
-}
-
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFApp::ClearAssets(int Clearonce){
-	for(int i=0; i< Clearonce; i++){
-		aliens.clear();
-		scouts.clear();
-		rangers.clear();
-		coins.clear();
-		interfaces.clear();
-	}
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
+//******************************Wave Spawning Functions**********************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SFApp::SpawnStartWave(int x){
 	for(int i=0; i< x; i++){
@@ -1073,8 +1249,7 @@ void SFApp::SpawnStartWave(int x){
 	SpawnScout(10);
 	SpawnCoin(2);
 	SpawnCloudsOnTop(2);
-	SpawnCloudsOnBottom(3);
-	//SpawnAttackers(1,1);
+	SpawnCloudsOnBottom(2);
 	}
 }
 //////////////////////////////////////////////
@@ -1109,18 +1284,7 @@ void SFApp::SpawnWave4(int x){
 		SpawnCoin(3);
 	}
 }
-//////////////////////////////////////////////
-//////////////////////////////////////////////
 
-void SFApp::SpawnBoss1(int x){
-		for(int i=0; i< x; i++){
-			auto boss = make_shared<SFAsset>(SFASSET_BOSS, sf_window);
-			auto bosspos = Point2 (320, rand() %(600+3000));
-					boss->SetPosition(bosspos);
-					bosses.push_back(boss);
-	}
-	  AlienFire(50);
-}
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
@@ -1130,9 +1294,36 @@ void SFApp::SpawnBonusWave(int x){
 		SpawnHealthPack(4);
 	}
 }
-//////////////////////////////////////////////
-//////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//********************************* Misc and GameOver Functions**************************************//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Spawn Game Over asset  
+void SFApp::SpawnGameOver(int GONo){	
+	for(int i=0; i< GONo; i++){
+	auto gameover = make_shared<SFAsset>(SFASSET_GAMEOVER, sf_window);
+    		auto go_pos = Point2(320,480);
+  			gameover->SetPosition(go_pos);
+			interfaces.push_back(gameover);
+	}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+// Clear some asset lists 
+void SFApp::ClearAssets(int Clearonce){
+	for(int i=0; i< Clearonce; i++){
+		aliens.clear();
+		scouts.clear();
+		rangers.clear();
+		coins.clear();
+		interfaces.clear();
+	}
+}
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+// reset all game variables to there originals and clear lists
 void SFApp::GameReset(int Resetonce){
 	for(int i=0; i< Resetonce; i++){
   int lives = 3 ;
@@ -1166,25 +1357,22 @@ void SFApp::GameReset(int Resetonce){
 		clouds2.clear();
 		pickups.clear();
 		healthpacks.clear();
-
 		SpawnStartWave(1);
 		
  }
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// Spawn the gameover asset and pause the game
 void SFApp::GameOver(int Callonce){
 	for(int i=0; i< Callonce; i++){
 		SpawnGameOver(1);
-		cout <<"You Died!" << endl;
-		cout <<"Your Final Score was: " << Points << endl;
 		is_paused = true;
 	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
-
+// function to allow the game to be paused
 void SFApp::Pause(){
   if(is_paused){
 		is_paused = false;
@@ -1194,84 +1382,4 @@ void SFApp::Pause(){
 	}
 
 }
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-void SFApp::SpawnScore(int Points)
-{
-string ScoreString;
-ostringstream ScoreConvert;
-ScoreConvert << Points;
-ScoreString = ScoreConvert.str();
-
-
-for(int i = 0; i < ScoreString.size(); i++){
-	if(ScoreString[i] == '0') {
-			auto zero = make_shared<SFAsset>(SFASSET_NUM0, sf_window);
-			auto pos = Point2(575+ (i*6), 470);
-			zero->SetPosition(pos);
-			points.push_back(zero);
-		}
-	if(ScoreString[i] == '1'){
-				auto one = make_shared<SFAsset>(SFASSET_NUM1, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				one->SetPosition(pos);
-				points.push_back(one);
-	}
-	if(ScoreString[i] == '2'){
-				auto two = make_shared<SFAsset>(SFASSET_NUM2, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				two->SetPosition(pos);
-				points.push_back(two);
-	}
-	if(ScoreString[i] == '3'){
-				auto three = make_shared<SFAsset>(SFASSET_NUM3, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				three->SetPosition(pos);
-				points.push_back(three);
-	}
-	if(ScoreString[i] == '4'){
-				auto four = make_shared<SFAsset>(SFASSET_NUM4, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				four->SetPosition(pos);
-				points.push_back(four);
-	}
-	if(ScoreString[i] == '5'){
-				auto five = make_shared<SFAsset>(SFASSET_NUM5, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				five->SetPosition(pos);
-				points.push_back(five);
-	}
-	 if(ScoreString[i] == '6'){
-				auto six = make_shared<SFAsset>(SFASSET_NUM6, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				six->SetPosition(pos);
-				points.push_back(six);
-	}
-	if(ScoreString[i] == '7'){
-				auto seven = make_shared<SFAsset>(SFASSET_NUM7, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				seven->SetPosition(pos);
-				points.push_back(seven);
-	}
-	if(ScoreString[i] == '8'){
-				auto eight = make_shared<SFAsset>(SFASSET_NUM8, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				eight->SetPosition(pos);
-				points.push_back(eight);
-	}
-	if (ScoreString[i] == '9'){
-				auto nine = make_shared<SFAsset>(SFASSET_NUM9, sf_window);
-				auto pos = Point2(575 + (i*6),470);
-				nine->SetPosition(pos);
-				points.push_back(nine);
-	}
-
-}
-}
-
-
-
-
 

@@ -22,7 +22,7 @@ using namespace std;
  * enum to mark the type of the SFAsset.  If we add more asset types then
  * the subclassing strategy becomes a better option.
  */
-enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_EXPLOSION,SFASSET_ALIEN, SFASSET_COIN, SFASSET_RANGER , SFASSET_CLOUD,SFASSET_CLOUD2, SFASSET_HEALTHPACK, SFASSET_HEALTHBARBLUE,SFASSET_HEALTHBARYELLOW,SFASSET_HEALTHBARRED, SFASSET_GAMEOVER, SFASSET_SCOUT, SFASSET_PICKUP, SFASSET_HPHUD, SFASSET_SCOREHUD, SFASSET_NUM0, SFASSET_NUM1, SFASSET_NUM2, SFASSET_NUM3, SFASSET_NUM4, SFASSET_NUM5, SFASSET_NUM6, SFASSET_NUM7, SFASSET_NUM8, SFASSET_NUM9,  SFASSET_ALIENFIRE, SFASSET_LIFE, SFASSET_BOSS};
+enum SFASSETTYPE {SFASSET_DEAD, SFASSET_PLAYER, SFASSET_PROJECTILE, SFASSET_EXPLOSION,SFASSET_ALIEN, SFASSET_COIN, SFASSET_RANGER , SFASSET_CLOUD, SFASSET_HEALTHPACK, SFASSET_HEALTHBARBLUE,SFASSET_HEALTHBARYELLOW,SFASSET_HEALTHBARRED, SFASSET_GAMEOVER, SFASSET_SCOUT, SFASSET_PICKUP, SFASSET_HUD, SFASSET_POW,SFASSET_NUM0, SFASSET_NUM1, SFASSET_NUM2, SFASSET_NUM3, SFASSET_NUM4, SFASSET_NUM5, SFASSET_NUM6, SFASSET_NUM7, SFASSET_NUM8, SFASSET_NUM9,  SFASSET_ALIENFIRE, SFASSET_LIFE, SFASSET_BOSS};
 
 class SFAsset {
 public:
@@ -47,17 +47,10 @@ public:
   virtual void 	    AttackerM();
   virtual void 	    ExplosionM();
   virtual void 	    AlienFireM();
-	
-	
+  virtual int       GetHealth();
+  virtual void      SetHealth(int health);
 
-  virtual void	    SetCoinAlive();
-  virtual void	    SetAlienAlive();
-  virtual void	    SetRangerAlive();
-  virtual void	    SetScoutAlive();
-  virtual void	    SetPickUpAlive();
   virtual void      SetNotAlive();
-  virtual void      SetHealthPackAlive();
-  virtual void      SetCloudAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();
 
@@ -73,6 +66,8 @@ private:
   SFASSETTYPE                 type;
   SFAssetId                   id;
   std::shared_ptr<SFWindow>   sf_window;
+
+int AssetHealth;
 
   static int SFASSETID;
 };
