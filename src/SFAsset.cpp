@@ -59,6 +59,9 @@ SFAsset::SFAsset(SFASSETTYPE type, std::shared_ptr<SFWindow> window): type(type)
   case SFASSET_HPHUD:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/hud.png");
     break;
+  case SFASSET_LIFE:
+    sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/lives.png");
+    break;
   case SFASSET_HEALTHBARBLUE:
     sprite = IMG_LoadTexture(sf_window->getRenderer(), "assets/healthbar/healthbarblue.png");
     break;

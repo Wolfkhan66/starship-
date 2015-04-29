@@ -6,6 +6,7 @@
 #include <list>     // Pull in list
 #include <sstream>
 #include <string>
+#include <unistd.h>
 
 using namespace std;
 
@@ -28,10 +29,10 @@ public:
   void    OnUpdateWorld();
   void    OnRender();
   void    FireProjectile();
-  void    GameOver();
+  void    GameOver(int Callonce);
   void    Pause();
-  void    GameReset();
-  void    ClearAssets();
+  void    GameReset(int Resetonce);
+  void    ClearAssets(int Clearonce);
 
   void    SpawnExplosion(Point2 pos, int explosionN);
   void	  PlayerHealth(int PlayerHP);
@@ -41,6 +42,7 @@ public:
   void	  SpawnCoin(int CoinNo);
   void	  SpawnHealthPack(int HealthPackNo);
   void	  SpawnPickUp(int PickUpNo);
+  void	  SpawnLives(int lifeNo);
   void	  SpawnScore(int Points);
   void    SpawnGameOver(int GONo);
 	void		SpawnCloudsOnTop(int CloudNo);
@@ -63,6 +65,7 @@ private:
   bool 			  restart;
   bool 				attackerdirection;
 	bool				Boss1Dead;
+	bool				GameEnded;
 
   shared_ptr<SFWindow>       sf_window;
 
@@ -86,12 +89,13 @@ private:
   list<shared_ptr<SFAsset> > clouds;
   list<shared_ptr<SFAsset> > clouds2;
   list<shared_ptr<SFAsset> > points;
+  list<shared_ptr<SFAsset> > lives;
 
-  int lives= 3;  
+  int numberOfLives = 3;
   int fire = 0;
   int fireN = 1;
 
-	int alienfire = 0;
+  int alienfire = 0;
 	int alienfireN = 1;
   int PlayerHP = 100;
   int Points = 0;

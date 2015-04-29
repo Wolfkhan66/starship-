@@ -36,7 +36,7 @@ break;
  case SDLK_p:
  code = SFEVENT_PAUSE;
  break;
- case SDLK_r:
+ case SDLK_RETURN:
  code = SFEVENT_RESTART;
  break;
  }

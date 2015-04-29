@@ -4,7 +4,7 @@
 
 
 
-	SFApp::SFApp(std::shared_ptr<SFWindow> window) :	is_running(true),is_paused(false),Boss1Dead(false), sf_window(window) {
+	SFApp::SFApp(std::shared_ptr<SFWindow> window) :GameEnded(false),	is_running(true),is_paused(false),Boss1Dead(false), sf_window(window) {
   	int canvas_w, canvas_h;
   		SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
 
@@ -28,7 +28,7 @@
 
 //	Spawn hud for healthbars and score
 	hphud  = make_shared<SFAsset>(SFASSET_HPHUD, sf_window);
-  		auto hphud_pos = Point2(60, 480);
+  		auto hphud_pos = Point2(60, 491);
   			hphud->SetPosition(hphud_pos);
 
 	scorehud  = make_shared<SFAsset>(SFASSET_SCOREHUD, sf_window);
@@ -70,7 +70,8 @@ SFEVENT the_event = event.GetCode();
 			break;
 		}
 		case SFEVENT_RESTART:{
-
+			GameReset(1);
+			is_paused = false;
 			break;
 		}
 			break;
@@ -128,15 +129,20 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //Check Events
  
-//check player health
-	if(PlayerHP <= 0){
-		lives --; 
-	}
-	
-	if( lives == 0){
 
+if(numberOfLives == 0){
+		GameOver(1);
+	}
+
+if(PlayerHP <= 0){
+		PlayerHP = 100;
+		numberOfLives = numberOfLives - 1;
 		player->HandleCollision();
-		GameOver();
+		usleep(1000000);
+			player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
+  		auto player_pos = Point2(320, 88.0f);
+  			player->SetPosition(player_pos);
+		Points = Points - 500;
 	}
 
 // check pickup is active
@@ -144,7 +150,7 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 		fireN = firePower;
 	}
 
-	if(PickUpsCollected == 10){
+	if(PickUpsCollected == 3){
 		firePower++;
 		PickUpsCollected = 0;
 	}
@@ -156,53 +162,66 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 	}
 
 //check pickup spawn
-	if(PickUpSeed >= 100 ){
-		PickUpSeed = PickUpSeed - 100;
+	if(PickUpSeed >= 500){
+		PickUpSeed = PickUpSeed - 500;
 		SpawnPickUp(1);
 	}
 
-
-	 if (currentSecond >= 60 && EnemiesDead == 25){
-		ClearAssets();
-		SpawnWave2(1);
-		EnemiesDead = EnemiesDead - 25;
-		Wave++;
-		cout<< "WAVE 2 INCOMING" << endl;
+/// Wave Generation /////////////
+	 if(Wave == 1  && EnemiesDead == 25){
+	   	ClearAssets(1);
+		 	SpawnWave2(1);
+		 	EnemiesDead = EnemiesDead - 25;
+		 	Wave++;
+		 	cout<< "WAVE 2 INCOMING" << endl;
+			SpawnHealthPack(1);
 	 }
-	if(Wave == 2 && EnemiesDead == 30 || Points > 4000)	{
-	ClearAssets();
-	SpawnWave3(1);
-	EnemiesDead = 0;
-	Wave++;
-	}
-	if(Wave == 3 && Points > 10000){
-	ClearAssets();
-		SpawnBonusWave(1);
-		EnemiesDead = 0;
-		CoinsCollected = 0;
-		Wave++;	
+	 if(Wave == 2 && EnemiesDead == 30 && Points > 1000)	{
+		 ClearAssets(1);
+	 	 SpawnWave3(1);
+	   EnemiesDead = 0;
+	   Wave++;
+					 	cout<< "WAVE 3 INCOMING" << endl;
+			SpawnHealthPack(1);
+	 }
+	 if(Wave == 3 && Points > 4000){
+	   ClearAssets(1);
+		 SpawnBonusWave(1);
+		 EnemiesDead = 0;
+		 CoinsCollected = 0;
+		 Wave++;	
+				 	cout<< "BONUS WAVE INCOMING" << endl;
    }
-	if(Wave == 4 && CoinsCollected == 10){
-	ClearAssets();
-		SpawnWave4(1);
-		EnemiesDead = 0;
-		Wave++;
+	 if(Wave == 4 && CoinsCollected == 10){
+	   ClearAssets(1);
+			coins.clear();
+			healthpacks.clear();
+		 SpawnWave4(1);
+		 EnemiesDead = 0;
+		 Wave++;
+			 	cout<< "WAVE 4 INCOMING" << endl;
+			
 	}
-	if(Wave == 5 && EnemiesDead == 60 || Points > 20000){
-	ClearAssets();
-	SpawnBoss1(1);
-	Wave++;
+	if(Wave == 5 && EnemiesDead == 60 && Points > 10000){
+		ClearAssets(1);
+		SpawnBoss1(1);
+		Wave++;
+				 	cout<< "BOSS INCOMING" << endl;
+			SpawnHealthPack(2);
 	}
 	if(Wave == 6 && Boss1Dead == true){
-	ClearAssets();	
+		ClearAssets(1);	
     SpawnBonusWave(2);
 		Wave++;
 		CoinsCollected = 0;
+				 	cout<< "BONUS WAVE INCOMING" << endl;
 	}
 	if(Wave == 7 && CoinsCollected == 20){
-	ClearAssets();
-			SpawnStartWave(3);
+		ClearAssets(1);
+		SpawnStartWave(3);
 		Wave++;
+					cout<< "WAVE 5 INCOMING" << endl;
+		SpawnHealthPack(1);
 	}
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +361,6 @@ for(auto ex:explosions){
 			a->HandleCollision();
 				cout << "Hit by alien!" << endl;
 				cout << "HP"<< PlayerHP << endl;			
-					EnemiesDead++;
 					SpawnAlien(1);
 					SpawnExplosion(aPos,1);
 		}
@@ -363,7 +381,6 @@ for(auto ex:explosions){
 			r->HandleCollision();
 				cout << "Hit by ranger!" << endl;
 				cout << "HP"<< PlayerHP << endl;
-					EnemiesDead++;
 					SpawnRanger(1);
 					SpawnExplosion(rPos,1);
 		}
@@ -385,7 +402,6 @@ for(auto ex:explosions){
 			s->HandleCollision();
 				cout << "Hit by scout!" << endl;
 				cout << "HP"<< PlayerHP << endl;
-					EnemiesDead++;
 					SpawnScout(1);
 					SpawnExplosion(sPos,1);
 		}
@@ -402,9 +418,9 @@ for(auto ex:explosions){
 		for(auto a : aliens) {
 				auto aPos = a->GetPosition();
 			if(p->CollidesWith(a)) {
-				Points = Points + 5;
-				HealthPackSeed = HealthPackSeed + 5;
-				PickUpSeed = PickUpSeed + 5;
+				Points = Points + 15;
+				HealthPackSeed = HealthPackSeed + 15;
+				PickUpSeed = PickUpSeed + 15;
 					p->HandleCollision();
 					a->HandleCollision();
 						cout << "Killed an enemy!" << endl;
@@ -423,9 +439,9 @@ for(auto ex:explosions){
 		for(auto r: rangers) {
 				auto rPos = r->GetPosition();
 			if(p->CollidesWith(r)) {
-				Points = Points + 2;
-				HealthPackSeed = HealthPackSeed + 2;
-				PickUpSeed = PickUpSeed + 2;
+				Points = Points + 10;
+				HealthPackSeed = HealthPackSeed + 10;
+				PickUpSeed = PickUpSeed + 10;
 					p->HandleCollision();
 					r->HandleCollision();
 			 			cout << "destroyed ranger!" << endl;
@@ -444,9 +460,9 @@ for(auto ex:explosions){
 		for(auto s: scouts) {
 				auto sPos = s->GetPosition();
 			if(p->CollidesWith(s)) {
-				Points = Points + 1;
-				HealthPackSeed = HealthPackSeed + 1;
-				PickUpSeed = PickUpSeed + 1;
+				Points = Points + 5;
+				HealthPackSeed = HealthPackSeed + 5;
+				PickUpSeed = PickUpSeed + 5;
 					p->HandleCollision();
 					s->HandleCollision();
 			 			cout << "destroyed scout!" << endl;
@@ -582,6 +598,16 @@ for(auto ex:explosions){
 			pickups.clear();
 			pickups = list<shared_ptr<SFAsset>>(puTemp);
 
+	// Remove the gameover screen
+	list<shared_ptr<SFAsset>> interTemp;
+		for(auto go : interfaces) {
+			if(go->IsAlive()) {
+				interTemp.push_back(go);
+			}
+		}
+			interfaces.clear();
+			interfaces = list<shared_ptr<SFAsset>>(interTemp);
+
 //Increase Time counter by 1
 Timer++;
 currentSecond = Timer / 60;
@@ -592,6 +618,10 @@ currentSecond = Timer / 60;
 	healthbars = list<shared_ptr<SFAsset>>(hbTemp);
   PlayerHealth(PlayerHP);
 
+	list<shared_ptr<SFAsset>> lfTemp;
+	lives.clear();
+	lives = list<shared_ptr<SFAsset>>(lfTemp);
+  SpawnLives(numberOfLives);
 
 	list<shared_ptr<SFAsset>> scTemp;
 	points.clear();
@@ -721,6 +751,10 @@ currentSecond = Timer / 60;
 	// this time render the score hud before the number assets so that they appear on top of the hud
 		scorehud->OnRender();
 
+		for(auto lf : lives){
+			lf ->OnRender();
+		}
+
 	for(auto po : points){
 		po->OnRender();
 	}
@@ -774,6 +808,18 @@ void SFApp::PlayerHealth(int PlayerHP){
 		}
 	}
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+void SFApp::SpawnLives(int lifeNo){
+	for(int i = 0; i < lifeNo; i++){
+			auto life = make_shared<SFAsset>(SFASSET_LIFE, sf_window);
+			auto pos = Point2(50+ (i*14), 446);
+			life->SetPosition(pos);
+			lives.push_back(life);
+	}
+}
+
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 void SFApp::SpawnAlien(int AlienNo){
@@ -788,6 +834,8 @@ for(int i = 0; i < AlienNo; i++) {
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
+
+//// This part works but their actual movement is a work in progress
 void SFApp::SpawnAttackers(int AttackerID,int AttackerNO){
 
 	for(int i = 0; i < AttackerNO; i++) {
@@ -933,14 +981,14 @@ void SFApp::FireProjectile() {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFApp::ClearAssets(){
-	aliens.clear();
-	scouts.clear();
-	rangers.clear();
-	coins.clear();
-	healthpacks.clear();
-	pickups.clear();
-	clouds.clear();
+void SFApp::ClearAssets(int Clearonce){
+	for(int i=0; i< Clearonce; i++){
+		aliens.clear();
+		scouts.clear();
+		rangers.clear();
+		coins.clear();
+		interfaces.clear();
+	}
 }
 
 //////////////////////////////////////////////
@@ -948,40 +996,46 @@ void SFApp::ClearAssets(){
 
 void SFApp::SpawnStartWave(int x){
 	for(int i=0; i< x; i++){
-	SpawnAlien(5);
-	SpawnRanger(5);
-	SpawnScout(5);
+	SpawnAlien(1);
+	SpawnRanger(1);
+	SpawnScout(10);
 	SpawnCoin(2);
 	SpawnCloudsOnTop(2);
-	SpawnCloudsOnBottom(2);
+	SpawnCloudsOnBottom(3);
 	//SpawnAttackers(1,1);
 	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 void SFApp::SpawnWave2(int x){
-	SpawnAlien(2);
-	SpawnRanger(2);
-	SpawnScout(20);
-	SpawnCoin(2);
+	for(int i=0; i< x; i++){
+		SpawnAlien(1);
+		SpawnRanger(15);
+		SpawnScout(1);
+		SpawnCoin(2);
+	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFApp::SpawnWave3(int x){
-	SpawnAlien(10);
-	SpawnRanger(20);
-	SpawnScout(10);
-	SpawnCoin(3);
+	for(int i=0; i< x; i++){
+		SpawnAlien(10);
+		SpawnRanger(2);
+		SpawnScout(2);
+		SpawnCoin(3);
+	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
 void SFApp::SpawnWave4(int x){
-	SpawnAlien(40);
-	SpawnRanger(5);
-	SpawnScout(10);
-	SpawnCoin(3);
+	for(int i=0; i< x; i++){
+		SpawnAlien(8);
+		SpawnRanger(8);
+		SpawnScout(8);
+		SpawnCoin(3);
+	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -993,35 +1047,62 @@ void SFApp::SpawnBoss1(int x){
 //////////////////////////////////////////////
 
 void SFApp::SpawnBonusWave(int x){
-	SpawnCoin(15);
-	SpawnHealthPack(4);
+	for(int i=0; i< x; i++){
+		SpawnCoin(15);
+		SpawnHealthPack(4);
+	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFApp::GameReset(){
-	 fire = 0;
-   fireN = 1;
-   PlayerHP = 100;
-   Points = 0;
-   HealthPackSeed = 0;
-   PickUpSeed = 0;
-   EnemiesDead = 0;
-   Timer = 0;
-   currentSecond = 0;
-   powertime = 0;
-   attime = 0;
+void SFApp::GameReset(int Resetonce){
+	for(int i=0; i< Resetonce; i++){
+  int lives = 3 ;
+  int fire = 0;
+  int fireN = 1;
 
+  int alienfire = 0;
+	int alienfireN = 1;
+  int PlayerHP = 100;
+  int Points = 0;
+  int HealthPackSeed = 0;
+	int PickUpsCollected= 0;
+  int PickUpSeed = 0;
+  int EnemiesDead = 0;
+	int CoinsCollected = 0;
+  int Timer = 0;
+  int currentSecond = 0;
+  int powertime = 0;
+  int attime = 0;
+  int Wave = 1;
+  int firePower = 1;
+		GameEnded = false;
+		Boss1Dead = false;
+
+		aliens.clear();
+		scouts.clear();
+		rangers.clear();
+		coins.clear();
+		interfaces.clear();
+		clouds.clear();
+		clouds2.clear();
+		pickups.clear();
+		healthpacks.clear();
+
+		SpawnStartWave(1);
+		
+ }
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-void SFApp::GameOver(){
-	SpawnGameOver(1);
-	cout <<"You Died!" << endl;
-	cout <<"Your Final Score was: " << Points << endl;
-	ClearAssets();
-	is_paused=true;
+void SFApp::GameOver(int Callonce){
+	for(int i=0; i< Callonce; i++){
+		SpawnGameOver(1);
+		cout <<"You Died!" << endl;
+		cout <<"Your Final Score was: " << Points << endl;
+		is_paused = true;
+	}
 }
 //////////////////////////////////////////////
 //////////////////////////////////////////////
