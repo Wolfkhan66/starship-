@@ -67,6 +67,7 @@ private:
   bool 	attackerdirection;
 	bool	Boss1Dead;
 	bool	GameEnded;
+  bool   WaveCriteriaMet;
 
   shared_ptr<SFWindow>       sf_window;
 
@@ -103,6 +104,7 @@ private:
   int Points = 0;
   int EnemiesDead = 0;
 	int CoinsCollected = 0;
+  int AssetsAlive = 0;
 
   int alienfire = 0;
 	int alienfireN = 1;

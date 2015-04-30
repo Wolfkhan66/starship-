@@ -4,7 +4,7 @@
 
 
 
-	SFApp::SFApp(std::shared_ptr<SFWindow> window) :GameEnded(false),	is_running(true),is_paused(false),Boss1Dead(false), sf_window(window) {
+	SFApp::SFApp(std::shared_ptr<SFWindow> window) :GameEnded(false),	is_running(true),is_paused(false),Boss1Dead(false),WaveCriteriaMet(false), sf_window(window) {
   int canvas_w, canvas_h;
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &canvas_w, &canvas_h);
   app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), 	canvas_w, canvas_h);
@@ -175,8 +175,8 @@ if(PlayerHP <= 0){
 // when the seed reaches a certain amount a pickup is spawned
 // the seed is then set back to 0
 
-	if(PickUpSeed >= 500){
-		PickUpSeed = PickUpSeed - 500;
+	if(PickUpSeed >= 250){
+		PickUpSeed = PickUpSeed - 250;
 		SpawnPickUp(1);
 	}
 
@@ -185,30 +185,48 @@ if(PlayerHP <= 0){
 //*************************************Handle Wave Generation****************************************//
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	 if(Wave == 1  && EnemiesDead == 25){
+	 if(Wave == 1  && EnemiesDead >= 25){
+		  WaveCriteriaMet = true;
+  cout << "Wave Criteria Met" << endl;
+		if(WaveCriteriaMet == true && AssetsAlive == 0){
 	   	ClearAssets(1);
 		 	SpawnWave2(1);
-		 	EnemiesDead = EnemiesDead - 25;
+		 	EnemiesDead = 0;
 		 	Wave++;
 		 	cout<< "WAVE 2 INCOMING" << endl;
 			SpawnHealthPack(1);
+			WaveCriteriaMet = false;
+		}
 	 }
-	 if(Wave == 2 && EnemiesDead == 30 && Points > 1000)	{
+
+	 if(Wave == 2 && EnemiesDead >= 30 && Points > 1000){
+		  WaveCriteriaMet = true;
+      cout << "Wave Criteria Met" << endl;
+		if(WaveCriteriaMet == true && AssetsAlive == 0){
 		 ClearAssets(1);
 	 	 SpawnWave3(1);
 	   EnemiesDead = 0;
 	   Wave++;
 		 cout<< "WAVE 3 INCOMING" << endl;
 		 SpawnHealthPack(1);
+		 WaveCriteriaMet = false;
+		}	
 	 }
+
 	 if(Wave == 3 && Points > 4000){
+		  WaveCriteriaMet = true;
+  cout << "Wave Criteria Met" << endl;
+		if(WaveCriteriaMet == true && AssetsAlive == 0){
 	   ClearAssets(1);
 		 SpawnBonusWave(1);
 		 EnemiesDead = 0;
 		 CoinsCollected = 0;
 		 Wave++;	
 				 	cout<< "BONUS WAVE INCOMING" << endl;
+	 WaveCriteriaMet = false;
+		}	
    }
+
 	 if(Wave == 4 && CoinsCollected == 10){
 		 Wave++;
 	   ClearAssets(1);
@@ -216,14 +234,21 @@ if(PlayerHP <= 0){
 		 EnemiesDead = 0;
 		 SpawnWave4(1);
 			 	cout<< "WAVE 4 INCOMING" << endl;
-	}
-	if(Wave == 5 && EnemiesDead == 60 && Points >= 5000){
+		}	
+
+	if(Wave == 5 && EnemiesDead >= 60 && Points >= 5000){
+		  WaveCriteriaMet = true;
+  cout << "Wave Criteria Met" << endl;
+		if(WaveCriteriaMet == true && AssetsAlive == 0){
 		ClearAssets(1);
 		SpawnBoss1(1);
 		Wave++;
 				 	cout<< "BOSS INCOMING" << endl;
 			SpawnHealthPack(2);
+	 WaveCriteriaMet = false;
+		}	
 	}
+
 	if(Wave == 6 && Boss1Dead == true){
 		Boss1Dead = false;
 		ClearAssets(1);	
@@ -232,6 +257,7 @@ if(PlayerHP <= 0){
 		CoinsCollected = 0;
 				 	cout<< "BONUS WAVE INCOMING" << endl;
 	}
+
 	if(Wave == 7 && CoinsCollected == 20){
 		ClearAssets(1);
 		SpawnStartWave(3);
@@ -436,7 +462,17 @@ if(PlayerHP <= 0){
 		a->AlienM();
 		auto aPos = a->GetPosition();
 // Check player collision with alien
-		if(player->CollidesWith(a)) {
+    if(player->CollidesWith(a) && WaveCriteriaMet == true){
+      	PlayerHP = PlayerHP - 15;
+			    a->HandleCollision();		
+					SpawnExplosion(aPos,1);
+          AssetsAlive--;
+    }
+    else if(aPos.getY() < -30.0f && WaveCriteriaMet == true){
+				a->HandleCollision();
+        AssetsAlive--;
+    }
+		else if(player->CollidesWith(a)) {
 			PlayerHP = PlayerHP - 15;
 			a->HandleCollision();		
 					SpawnAlien(1);
@@ -454,11 +490,19 @@ if(PlayerHP <= 0){
 		r->RangerM();
 		auto rPos = r->GetPosition();
 // Check player collision with alien
-		if(player->CollidesWith(r)) {
+    if(player->CollidesWith(r) && WaveCriteriaMet == true){
+      	PlayerHP = PlayerHP - 10;
+			    r->HandleCollision();		
+					SpawnExplosion(rPos,1);
+          AssetsAlive--;
+    }
+    else if(rPos.getY() < -30.0f && WaveCriteriaMet == true){
+				r->HandleCollision();
+        AssetsAlive--;
+    }
+		else if(player->CollidesWith(r)) {
 			PlayerHP = PlayerHP - 10;
 			r->HandleCollision();
-				cout << "Hit by ranger!" << endl;
-				cout << "HP"<< PlayerHP << endl;
 					SpawnRanger(1);
 					SpawnExplosion(rPos,1);
 		}
@@ -475,7 +519,17 @@ if(PlayerHP <= 0){
 		s->ScoutM();
 		auto sPos = s->GetPosition();
 // Check player collision with alien
-		if(player->CollidesWith(s)) {
+    if(player->CollidesWith(s) && WaveCriteriaMet == true){
+      	PlayerHP = PlayerHP - 5;
+			    s->HandleCollision();		
+					SpawnExplosion(sPos,1);
+          AssetsAlive--;
+    }
+    else if(sPos.getY() < -30.0f && WaveCriteriaMet == true){
+				s->HandleCollision();
+        AssetsAlive--;
+    }
+		else if(player->CollidesWith(s)) {
 			PlayerHP = PlayerHP - 5;
 			s->HandleCollision();
 					SpawnScout(1);
@@ -505,7 +559,20 @@ if(PlayerHP <= 0){
 	for(auto p : projectiles) {
 		for(auto a : aliens) {
 				auto aPos = a->GetPosition();
-			if(p->CollidesWith(a)) {
+      	if(p->CollidesWith(a) && WaveCriteriaMet == true) {
+				a->SetHealth(a->GetHealth()-5);
+				p->HandleCollision();
+				if(a->GetHealth() <= 0){
+					Points = Points + 15;
+					HealthPackSeed = HealthPackSeed + 15;
+					PickUpSeed = PickUpSeed + 15;
+					a->HandleCollision();
+							EnemiesDead++;
+              AssetsAlive--;
+							SpawnExplosion(aPos,1);
+				}
+        }
+			else if(p->CollidesWith(a)) {
 				a->SetHealth(a->GetHealth()-5);
 				p->HandleCollision();
 				if(a->GetHealth() <= 0){
@@ -527,7 +594,21 @@ if(PlayerHP <= 0){
 	for(auto p : projectiles) {
 		for(auto r: rangers) {
 				auto rPos = r->GetPosition();
-			if(p->CollidesWith(r)) {
+        if(p->CollidesWith(r) && WaveCriteriaMet == true) {
+					r->SetHealth(r->GetHealth()-5);
+					p->HandleCollision();
+				if(r->GetHealth() <= 0){
+					Points = Points + 10;
+					HealthPackSeed = HealthPackSeed + 10;
+					PickUpSeed = PickUpSeed + 10;
+					p->HandleCollision();
+					r->HandleCollision();
+							EnemiesDead++;
+							AssetsAlive--;
+							SpawnExplosion(rPos,1);
+				}
+        }
+			else if(p->CollidesWith(r)) {
 					r->SetHealth(r->GetHealth()-5);
 					p->HandleCollision();
 				if(r->GetHealth() <= 0){
@@ -550,7 +631,20 @@ if(PlayerHP <= 0){
 	for(auto p : projectiles) {
 		for(auto s: scouts) {
 				auto sPos = s->GetPosition();
-			if(p->CollidesWith(s)) {
+			if(p->CollidesWith(s) && WaveCriteriaMet == true) {
+				s->SetHealth(s->GetHealth()-5);
+				p->HandleCollision();
+					if(s->GetHealth() <= 0){
+						Points = Points + 5;
+						HealthPackSeed = HealthPackSeed + 5;
+						PickUpSeed = PickUpSeed + 5;
+							p->HandleCollision();
+							s->HandleCollision();
+							AssetsAlive--;
+							SpawnExplosion(sPos,1);	
+				  }
+        }
+			else if(p->CollidesWith(s)) {
 				s->SetHealth(s->GetHealth()-5);
 				p->HandleCollision();
 					if(s->GetHealth() <= 0){
@@ -1250,6 +1344,7 @@ void SFApp::SpawnStartWave(int x){
 	SpawnCoin(2);
 	SpawnCloudsOnTop(2);
 	SpawnCloudsOnBottom(2);
+  AssetsAlive = 12;
 	}
 }
 //////////////////////////////////////////////
@@ -1260,6 +1355,7 @@ void SFApp::SpawnWave2(int x){
 		SpawnRanger(15);
 		SpawnScout(1);
 		SpawnCoin(2);
+    AssetsAlive = 17;
 	}
 }
 //////////////////////////////////////////////
@@ -1271,6 +1367,7 @@ void SFApp::SpawnWave3(int x){
 		SpawnRanger(2);
 		SpawnScout(2);
 		SpawnCoin(3);
+    AssetsAlive = 14;
 	}
 }
 //////////////////////////////////////////////
@@ -1282,6 +1379,7 @@ void SFApp::SpawnWave4(int x){
 		SpawnRanger(8);
 		SpawnScout(8);
 		SpawnCoin(3);
+    AssetsAlive = 24;
 	}
 }
 
@@ -1319,6 +1417,7 @@ void SFApp::ClearAssets(int Clearonce){
 		rangers.clear();
 		coins.clear();
 		interfaces.clear();
+    alienfires.clear();
 	}
 }
 //////////////////////////////////////////////
