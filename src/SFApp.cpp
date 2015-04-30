@@ -144,10 +144,11 @@ if(PlayerHP <= 0){
 		numberOfLives = numberOfLives - 1;
 		player->HandleCollision();
 		usleep(1000000);
-			player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
+		player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
   		auto player_pos = Point2(320, 88.0f);
-  			player->SetPosition(player_pos);
+  		player->SetPosition(player_pos);
 		Points = Points - 500;
+		
 	}
 
 // when a player collects a pick up power time is set to the current second
@@ -1425,28 +1426,33 @@ void SFApp::ClearAssets(int Clearonce){
 // reset all game variables to there originals and clear lists
 void SFApp::GameReset(int Resetonce){
 	for(int i=0; i< Resetonce; i++){
-  int lives = 3 ;
-  int fire = 0;
-  int fireN = 1;
+  numberOfLives = 3;
+  fire = 0;
+  fireN = 1;
+  PlayerHP = 100;
 
-  int alienfire = 0;
-	int alienfireN = 1;
-  int PlayerHP = 100;
-  int Points = 0;
-  int HealthPackSeed = 0;
-	int PickUpsCollected= 0;
-  int PickUpSeed = 0;
-  int EnemiesDead = 0;
-	int CoinsCollected = 0;
-  int Timer = 0;
-  int currentSecond = 0;
-  int powertime = 0;
-  int attime = 0;
-  int Wave = 1;
-  int firePower = 1;
+   Wave = 1;
+   Points = 0;
+   EnemiesDead = 0;
+   CoinsCollected = 0;
+   AssetsAlive = 0;
+
+   alienfire = 0;
+   alienfireN = 1;
+
+   HealthPackSeed = 0;
+   PickUpsCollected= 0;
+   PickUpSeed = 0;
+   firePower = 1;
+
+   Timer = 0;
+   currentSecond = 0;
+   powertime = 0;
+   attime = 0;
+   currentex = 0;
 		GameEnded = false;
 		Boss1Dead = false;
-
+		WaveCriteriaMet = false;
 		aliens.clear();
 		scouts.clear();
 		rangers.clear();
