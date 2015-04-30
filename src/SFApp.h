@@ -95,7 +95,7 @@ private:
   list<shared_ptr<SFAsset> > bosses;
   list<shared_ptr<SFAsset> > pows;
 
-  int numberOfLives = 1;
+  int numberOfLives = 3;
   int fire = 0;
   int fireN = 1;
   int PlayerHP = 100;
