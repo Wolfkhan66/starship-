@@ -68,7 +68,7 @@ private:
 	bool	Boss1Dead;
 	bool	GameEnded;
   bool   WaveCriteriaMet;
-
+  bool   incoming;
   shared_ptr<SFWindow>       sf_window;
 
   shared_ptr<SFAsset>        player;
@@ -118,7 +118,7 @@ private:
   int currentSecond = 0;
   int powertime = 0;
   int attime = 0;
-	int currentex = 0;
+  int currentex = 0;
 
 
   SFError OnInit();

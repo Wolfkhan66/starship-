@@ -265,7 +265,12 @@ SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
+if(SFASSET_CLOUD == type) {
+ Vector2 c = *(bbox->centre) + Vector2(0.0f, -2.0f);
 
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
 }
 
 //////////////////////////////////////////////
@@ -337,7 +342,7 @@ void SFAsset::RangerM() {
 void SFAsset::ScoutM() {
 	int w, h;
 		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
- 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -6.0f);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -5.0f);
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }
@@ -348,7 +353,7 @@ void SFAsset::ScoutM() {
 void SFAsset::AlienM() {
 	int w, h;
 		SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
- 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
+ 			Vector2 c = *(bbox->centre) + Vector2(0.0f, -3.0f);
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
 }

@@ -1168,38 +1168,38 @@ for(int i = 0; i < ScoreString.size(); i++){
 //*********************************Enemy Spawn Functions*********************************************//
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//		Spawn an alien, set its health to 15
+//		Spawn an alien, set its health to 30
 void SFApp::SpawnAlien(int AlienNo){
 	for(int i = 0; i < AlienNo; i++) {
 		auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
 		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
 				alien->SetPosition(pos);
 				aliens.push_back(alien);
-				alien->SetHealth(15);
+				alien->SetHealth(30);
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//		Spawn a ranger, set its health to 10
+//		Spawn a ranger, set its health to 15
 void SFApp::SpawnRanger(int RangerNo){
 	for(int i = 0; i < RangerNo; i++) {
 		auto ranger = make_shared<SFAsset>(SFASSET_RANGER, sf_window);
 		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
 				ranger->SetPosition(pos);
 				rangers.push_back(ranger);
-				ranger->SetHealth(10);
+				ranger->SetHealth(15);
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//		Spawn a scout, set its health to 5
+//		Spawn a scout, set its health to 10
 void SFApp::SpawnScout(int ScoutNo){
 	for(int i = 0; i < ScoutNo; i++) {
 		auto scout = make_shared<SFAsset>(SFASSET_SCOUT, sf_window);
 		auto pos = Point2 (rand() % 550 + 60, rand() % 3000 + 600);
 				scout->SetPosition(pos);
 				scouts.push_back(scout);
-				scout->SetHealth(5);
+				scout->SetHealth(10);
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1211,7 +1211,7 @@ void SFApp::SpawnBoss1(int x){
 			auto bosspos = Point2 (320, 2000);
 					boss->SetPosition(bosspos);
 					bosses.push_back(boss);
-					boss->SetHealth(250);
+					boss->SetHealth(1000);
 					AlienFire(50);
 	}
 }
@@ -1343,8 +1343,8 @@ void SFApp::SpawnStartWave(int x){
 	SpawnRanger(1);
 	SpawnScout(10);
 	SpawnCoin(2);
-	SpawnCloudsOnTop(2);
-	SpawnCloudsOnBottom(2);
+	SpawnCloudsOnTop(3);
+	SpawnCloudsOnBottom(3);
   AssetsAlive = 12;
 	}
 }
